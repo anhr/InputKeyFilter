@@ -1,1 +1,1 @@
-Hello
+Filter the contents of the input element on your web page using JavaScript language. You can filter the content as integer number, as float number, or write a custom filter, for example a phone number filter.
