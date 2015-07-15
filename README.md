@@ -1,5 +1,7 @@
 Cross-browser content filter of the text input element on your web page, using JavaScript language. You can filter the content as integer number, as float number, or write a custom filter, for example a phone number filter.
 
+Example: https://c43f926216f244a079d98b57ab738ad9472e87fd.googledrive.com/host/0B5hS0tFSGjBZflRHV3ZJZEtMLTc5dV9PSEJ2VmpZZGFvclhTaWh1bVFRQXRCMm5UeXp6UWs/
+
 My filter successfully tested on browsers:
 
 IE6 and IE8. No beep: 'Audio' is undefined. See http://caniuse.com/#feat=audio for details
