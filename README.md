@@ -1,6 +1,6 @@
 The cross-browser filter of value of the text input element on your web page using JavaScript language. You can filter the value as an integer number, a float number, or write a custom filter, such as a phone number filter.
 
-Example: https://googledrive.com/host/0B5hS0tFSGjBZfkhKS1VobnFDTkJKR0tVamxadmlvTmItQ2pxVWR0WDZPdHZxM2hzS1J3ejQ/InputKeyFilter/
+Example: <a href='https://googledrive.com/host/0B5hS0tFSGjBZfkhKS1VobnFDTkJKR0tVamxadmlvTmItQ2pxVWR0WDZPdHZxM2hzS1J3ejQ/InputKeyFilter/' target="_blank">Input Key Filter</a>.
 
 ## My filter successfully tested on browsers:
 
