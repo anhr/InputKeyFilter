@@ -1,6 +1,4 @@
-﻿<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> -->
-<!--<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd"> -->
-<!doctype html>
+﻿<!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
     <title>Input Key Filter Test</title>
@@ -14,15 +12,36 @@
 	<link rel="stylesheet" href="../MyIsapi/InputKeyFilter.css" type="text/css">		
 	<script type="text/javascript" src="/js/Common.js"></script>
 	<script type="text/javascript" src="/js/InputKeyFilter.js"></script>
--->	
+-->
+	<!--
+		Get all scripts from current site.
+		You can edit all scripts,
+		but my updates in the gitgub https://github.com/anhr/InputKeyFilter project is not available.
+	 -->
+	<!--
 	<link rel="stylesheet" href="InputKeyFilter.css" type="text/css">		
 	<script type="text/javascript" src="Common.js"></script>
 	<script type="text/javascript" src="InputKeyFilter.js"></script>
+	-->
+ 
+	<!--
+		Get all scripts from my project in gitgub https://github.com/anhr/InputKeyFilter.
+		You can use all my updates immediately if you getting all scripts from  my project in gitgub,
+		but you can not edit scripts, except if you do a contribute in my github project.
+		
+		See details in http://stackoverflow.com/questions/17341122/link-and-execute-external-javascript-file-hosted-on-github
+	 -->
+	<link rel="stylesheet" href="https://rawgit.com/anhr/InputKeyFilter/master/InputKeyFilter.css" type="text/css">		
+	<script type="text/javascript" src="https://rawgit.com/anhr/InputKeyFilter/master/Common.js"></script>
+	<script type="text/javascript" src="https://rawgit.com/anhr/InputKeyFilter/master/InputKeyFilter.js"></script>
+	
 </head>
 <body>
+	The filter of value of the text input element on your web page using JavaScript language.
+	You can filter the value as an integer number, a float number, or write a custom filter, such as a phone number filter.
 	<h1>Input Key Filter Test</h1>
 	Integer field: 
-	<!-- ATTENTION!!! The "focus out" event is not happens in Android 2.3.6, Opera in Windows Phone -->
+	<!-- ATTENTION!!! The "focus out" event is not happens in FireFox, Android 2.3.6, Opera in Windows Phone -->
 	<input type="text"
 		onchange="javascript: onChangeNumber(this)"
 		onfocusout='javascript: onFocusOutNumber(this)'
@@ -138,5 +157,6 @@
 		}
 	</script>
 	<hr>
+	Have a job for me? Please read <a href='../AboutMe/'>About Me</a>.
 </body>
 </html>
