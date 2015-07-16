@@ -14,19 +14,19 @@ Opera 30
 
 Safari 5.1.7
 
-FireFox 39. The "focus out" event is not happens.
+FireFox 39. The "focus out" event is not fires.
 
 
-The "key press" event is not happens in Android if you press a russian letter. see http://stackoverflow.com/questions/9302986/no-keypress-events-for-certain-keys-in-android-browser
+The "key press" event is not fires in Android if you press a russian letter. see http://stackoverflow.com/questions/9302986/no-keypress-events-for-certain-keys-in-android-browser
 
 Android 5.0 Chrome.
 
-Android 5.0 Internet in Samsung Galaxy S5. The "key press" event is not happens.
+Android 5.0 Internet in Samsung Galaxy S5. The "key press" event is not fires.
 
-Android 2.3.6. The "focus out" event is not happens.
+Android 2.3.6. The "focus out" event is not fires.
 
 
-Opera in Windows Phone. The "focus out" event is not happens. No beep.
+Opera in Windows Phone. The "focus out" event is not fires. No beep.
 
 IE in Windows Phone. No beep.
 
