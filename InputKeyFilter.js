@@ -169,6 +169,34 @@ var intFilter = {
 	}
 }
 
+//Positive integer value of the input element is allowed
+var intPositiveFilter = {
+	inputKeyFilter: new InputKeyFilter(
+		function(elementInput, value){
+			if(value.match(/^(\d*)$/) == null){
+				this.TextAdd(isRussian() ?
+						"Допустимый формат: [0...9]. Например: 1234"
+						: "Acceptable formats: [0...9]. Examples: 1234"
+					, elementInput);
+				return false;
+			}
+			return true;
+		}
+	)
+	
+	, onKeyPress: function(evt){
+		return this.inputKeyFilter.onKeyPress(evt);
+	}
+	
+	, onKeyUp: function(evt){
+		return this.inputKeyFilter.onKeyUp(evt);
+	}
+	
+	, isNaN: function(value, elementInput){
+		return this.inputKeyFilter.isNaN(value, elementInput);
+	}
+}
+
 //Negative and positive float value of the input element is allowed
 var floatFilter = {
 	inputKeyFilter: new InputKeyFilter(
