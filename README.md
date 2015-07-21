@@ -26,7 +26,7 @@ Android 5.0 Internet in Samsung Galaxy S5. The "key press" event is not fires.
 Android 2.3.6
 
 
-Opera in Windows Phone. No beep. Calling this.blur() in onfocus handler or this.focus() in an onblur handler do not work. https://bugzilla.mozilla.org/show_bug.cgi?id=53579
+Opera in Windows Phone. No beep. Calling this.blur() in onfocus handler or this.focus() in an onblur handler do not work.
 
 IE in Windows Phone. No beep.
 
