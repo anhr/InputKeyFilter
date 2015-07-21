@@ -14,7 +14,7 @@ Opera 30
 
 Safari 5.1.7
 
-FireFox 39. The "focus out" event is not fires.
+FireFox 39. Calling this.blur() in onfocus handler or this.focus() in an onblur handler do not work. https://bugzilla.mozilla.org/show_bug.cgi?id=53579
 
 
 The "key press" event is not fires in Android if you press a russian letter. see http://stackoverflow.com/questions/9302986/no-keypress-events-for-certain-keys-in-android-browser
@@ -23,10 +23,10 @@ Android 5.0 Chrome.
 
 Android 5.0 Internet in Samsung Galaxy S5. The "key press" event is not fires.
 
-Android 2.3.6. The "focus out" event is not fires.
+Android 2.3.6
 
 
-Opera in Windows Phone. The "focus out" event is not fires. No beep.
+Opera in Windows Phone. No beep. Calling this.blur() in onfocus handler or this.focus() in an onblur handler do not work. https://bugzilla.mozilla.org/show_bug.cgi?id=53579
 
 IE in Windows Phone. No beep.
 

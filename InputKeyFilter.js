@@ -125,7 +125,7 @@ function InputKeyFilter(customFilter) {
 	}
 
 	// Set focus to the input element again if input value is NaN.
-	// You can call this function during processing of the "onfocusout" and "onchange" events of the input element.
+	// You can call this function during processing of the "onblur", "onfocusout" and "onchange" events of the input element.
 	this.isNaN = function(value, elementInput){
 //consoleLog("InputKeyFilter.isNaN(...)");
 		this.onkeypress = true;
@@ -136,7 +136,17 @@ function InputKeyFilter(customFilter) {
 				"Не числовое значение: " + value
 				: "number is an illegal number: " + value
 			, elementInput);
+			
+		//do not works in Firefox https://bugzilla.mozilla.org/show_bug.cgi?id=53579
 		elementInput.focus();
+/*		
+		//for compatibility with FireFox https://bugzilla.mozilla.org/show_bug.cgi?id=53579
+		if(elementInput.id == ""){
+			consoleError("InputKeyFilter.isNaN(...). elementInput.id is empty");
+			return;
+		}
+		setTimeout("document.getElementById(\"" + elementInput.id + "\").focus();", 0);
+*/		
 		return true;
 	}
 }//InputKeyFilter

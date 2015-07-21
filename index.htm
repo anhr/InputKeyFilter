@@ -18,11 +18,9 @@
 		You can edit all scripts,
 		but my updates in the gitgub https://github.com/anhr/InputKeyFilter project is not available.
 	 -->
-	<!--
 	<link rel="stylesheet" href="InputKeyFilter.css" type="text/css">		
 	<script type="text/javascript" src="Common.js"></script>
 	<script type="text/javascript" src="InputKeyFilter.js"></script>
-	-->
  
 	<!--
 		Get all scripts from my project in gitgub https://github.com/anhr/InputKeyFilter.
@@ -31,9 +29,11 @@
 		
 		See details in http://stackoverflow.com/questions/17341122/link-and-execute-external-javascript-file-hosted-on-github
 	 -->
+	 <!--
 	<link rel="stylesheet" href="https://rawgit.com/anhr/InputKeyFilter/master/InputKeyFilter.css" type="text/css">		
 	<script type="text/javascript" src="https://rawgit.com/anhr/InputKeyFilter/master/Common.js"></script>
 	<script type="text/javascript" src="https://rawgit.com/anhr/InputKeyFilter/master/InputKeyFilter.js"></script>
+	 -->
 	
 </head>
 <body>
@@ -44,7 +44,7 @@
 	<!-- ATTENTION!!! The "focus out" event is not happens in FireFox, Android 2.3.6, Opera in Windows Phone -->
 	<input type="text"
 		onchange="javascript: onChangeNumber(this)"
-		onfocusout='javascript: onFocusOutNumber(this)'
+		onblur='javascript: onBlurNumber(this)'
 		onkeypress='return intFilter.onKeyPress(event);'
 		onkeyup='intFilter.onKeyUp(event);'/>
 		
@@ -57,7 +57,7 @@
 			setTimeout(function() { alert("integer = " + integer) }, 0);
 		}
 		
-		function onFocusOutNumber(input){
+		function onBlurNumber(input){
 			intFilter.isNaN(parseInt(input.value), input);
 		}
 	</script>
@@ -65,7 +65,7 @@
 	Float field: 
 	<input type="text"
 		onchange="javascript: onChangeFloat(this)"
-		onfocusout='javascript: onFocusOutFloat(this)'
+		onblur='javascript: onBlurFloat(this)'
 		onkeypress='return floatFilter.onKeyPress(event);'
 		onkeyup='floatFilter.onKeyUp(event);'/>
 	<script>
@@ -77,7 +77,7 @@
 			setTimeout(function() { alert("float = " + float) }, 0);
 		}
 		
-		function onFocusOutFloat(input){
+		function onBlurFloat(input){
 			floatFilter.isNaN(parseFloat(input.value), input);
 		}
 	</script>
@@ -85,7 +85,7 @@
 	Custom filter: 
 	<input type="text" value="+()--"
 		onchange="javascript: onChangePhoneNumber(this)"
-		onfocusout='javascript: onFocusOutPhoneNumber(this)'
+		onblur='javascript: onBlurPhoneNumber(this)'
 		onkeypress='return phoneNumberFilter.onKeyPress(event);'
 		onkeyup='phoneNumberFilter.onKeyUp(event);'/>
 		Please type a phone number in the +**(***)***-**-** format. Example: +1(23)456-78-90
@@ -152,7 +152,7 @@
 			setTimeout(function() { alert("phoneNumber = " + phoneNumber) }, 0);
 		}
 		
-		function onFocusOutPhoneNumber(input){
+		function onBlurPhoneNumber(input){
 			phoneNumberFilter.isNaN(parseInt(getPhoneNumber()), input);
 		}
 	</script>
