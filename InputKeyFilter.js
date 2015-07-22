@@ -85,33 +85,36 @@ function InputKeyFilter(customFilter) {
 		this.onkeypress = true;
 		
 		var elementInput = (evt.srcElement) ? evt.srcElement : evt.currentTarget;
-		var charCode = this.getChar(evt);	
-//consoleLog("onKeyPress(" + evt + "). charCode = " + charCode);
+		var charCode = this.getChar(evt);
+//alert("onKeyPress(" + evt + "). elementInput.value = " + elementInput.value);
 		
 		//for FireFox, Windows Phone Opera
 		if(!charCode)
 			return true;//Control codes. Examples: ArrowUp, ArrowLeft, Home, End, Backspace, Delete
 			
 		var caretPos = getCaretPosition(elementInput);
-		if(!this.filter(elementInput, elementInput.value.substr(0,caretPos) + charCode + elementInput.value.substr(caretPos)))
+		var value = elementInput.value.substr(0,caretPos) + charCode + elementInput.value.substr(caretPos);
+		if(!this.filter(elementInput, value))
 			return false;
+		this.value = value;
 		MyTooltip.RemoveMyTooltip();
 			return true;
 	}
 	
 	// The "key up" event of the input element
-	// Sometimes the "key press" event is not happens.
+	// Sometimes the "key press" event is not fires.
 	// For example if user press the control keys (ArrowUp, ArrowLeft, Home, End, Backspace, Delete etc).
 	// Some browsers (Internet app в Samsung Galaxy S5) is not support the "key press" event.
-	// The "key press" event is not happens in Android if you press a russian letter. see http://stackoverflow.com/questions/9302986/no-keypress-events-for-certain-keys-in-android-browser
+	// The "key press" event is not fires in Android if you press a russian letter. see http://stackoverflow.com/questions/9302986/no-keypress-events-for-certain-keys-in-android-browser
 	// For resolving of the problem I have added the onKeyUp(...) function for "key up" event
 	// I can not to stop processing of the "key press" event because some browsers (Opera and IE in Windows Phone) do not support the "key up" event
 	this.onKeyUp = function(evt){
 //consoleLog("onKeyUp(" + evt + ")");
 		if(this.onkeypress){
 			this.onkeypress = false;
-			return true;//Do not process the "key up" event if "key press" event happens
+			return true;//Do not process the "key up" event if "key press" event fires
 		}
+//alert("onKeyUp(" + evt + "). charCode = " + this.getChar(evt));
 		var elementInput = (evt.srcElement) ? evt.srcElement : evt.currentTarget;
 		if(!this.filter(elementInput)){
 			var caretPos = getCaretPosition(elementInput);
