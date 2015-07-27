@@ -2,11 +2,11 @@ The cross-browser filter of value of the text input element on your web page usi
 
 Example: <a href='https://googledrive.com/host/0B5hS0tFSGjBZfkhKS1VobnFDTkJKR0tVamxadmlvTmItQ2pxVWR0WDZPdHZxM2hzS1J3ejQ/InputKeyFilter/' target="_blank">Input Key Filter</a>.
 
-## My filter successfully tested on browsers:
+## On the following browsers have been successfully tested:
 
-IE6 and IE8. No beep: 'Audio' is undefined. See http://caniuse.com/#feat=audio for details
+IE 6 and IE 8. No beep: 'Audio' is undefined. See http://caniuse.com/#feat=audio for details
 
-IE11
+IE 11
 
 Chrome 43
 
@@ -26,7 +26,7 @@ Android 5.0 Internet in Samsung Galaxy S5. The "key press" event is not fires.
 Android 2.3.6
 
 
-Opera in Windows Phone. No beep. Calling this.blur() in onfocus handler or this.focus() in an onblur handler do not work.
+Opera 9.5 in Windows Phone. No beep. Calling this.blur() in onfocus handler or this.focus() in an onblur handler do not work.
 
 IE in Windows Phone. No beep.
 
