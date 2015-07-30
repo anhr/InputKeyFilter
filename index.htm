@@ -33,6 +33,7 @@
 	
 </head>
 <body>
+	<p><a href='../'>Home</a> | <a href='https://github.com/anhr/InputKeyFilter' target="_blank">GitHub</a></p>
 	The filter of value of the text input element on your web page using JavaScript language.
 	You can filter the value as an integer number, a float number, or write a custom filter, such as a phone number filter.
 	<h1>Input Key Filter Test</h1>
@@ -136,6 +137,60 @@
 	 New phone number: <span id="NewPhoneNumber"></span>
 	<br/>
 	Please type a phone number in the +**(***)***-**-** format. Example: +1(23)456-78-90
+
+	<hr>
+	<a href='https://stackoverflow.com/questions/30609844/is-possible-to-make-html-input-type-number-only-show-numbers-which-are-multiple' target="_blank">
+		To make html input type number only show numbers which are multiple of 5
+	</a>.  
+	<input id="MultipleOf5">
+	<script>
+		function TextAddMultipleOf5(elementInput){
+			inputKeyFilter.TextAdd(isRussian() ?
+					"разрешается только числа, которые кратны 5. Например: 5 10 15"
+					: "only allowed numbers which are multiple of 5. Examples: 5 10 15"
+				, elementInput);
+		}
+		
+		function isMultipleOf5(input){
+			var integer = parseInt(input.value);
+			if(inputKeyFilter.isNaN(integer, input))
+				return false;//value is not integer
+			if(parseInt(integer/5)*5 != integer)
+				return false;//integer is not multiple of 5
+			return true;//integer is multiple of 5
+		}
+		
+		inputKeyFilter.Create("MultipleOf5"
+			, function(event){//onChange event
+				inputKeyFilter.RemoveMyTooltip();
+				
+				var elementNewMultipleOf5 = document.getElementById("NewMultipleOf5");
+				if(isMultipleOf5(this)){
+					elementNewMultipleOf5.innerHTML = this.value;
+					return;
+				}
+				elementNewMultipleOf5.innerHTML = "";
+				TextAddMultipleOf5(this);
+			}
+			, function(elementInput, value){//customFilter
+				//if(value.match(/^(-?\d*)$/) != null)//value is positive and negative number
+				if(value.match(/^(\d*)$/) != null)//value is positive number only
+					return true;//value is number
+				TextAddMultipleOf5(elementInput);
+				return false;//invalid value
+			}
+			
+			//onblur event. Use this function if you want set focus to the input element again if input value is NaN. (empty or invalid)
+			, function(event){
+				var value;
+				if(isMultipleOf5(this))
+					value = this.value;
+				if(inputKeyFilter.isNaN(parseInt(value), this))
+					TextAddMultipleOf5(this);
+			}
+		);
+	</script>
+	 New, multiple of 5 number: <span id="NewMultipleOf5"></span>
 	<hr>
 	Have a job for me? Please read <a href='../AboutMe/' target="_blank">About Me</a>.
 </body>
