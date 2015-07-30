@@ -28,6 +28,9 @@ Android 2.3.6
 
 Opera 9.5 in Windows Phone. No beep. Calling this.blur() in onfocus handler or this.focus() in an onblur handler do not work.
 
+Do not supports in Opera Mini 10 because onkeypress and onkeyup events is not fires.
+See "Unsupported DOM events" header in https://dev.opera.com/articles/opera-mini-and-javascript/ for details
+
 IE in Windows Phone. No beep.
 
 ## Have a job for me?

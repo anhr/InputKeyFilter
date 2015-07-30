@@ -53,8 +53,7 @@ function ErrorMessage(message, emailMe, StackTrace){
 function consoleLog(message){
 	try{
 		console.log(message);//Do not works in WP
-    }
-    catch(e) {
+    } catch(e) {
     }
 }
 
@@ -63,8 +62,9 @@ function consoleError(msg)
 	try
 	{
 		console.error(msg);
-	}
-	catch(e) {}
+    } catch(e) {
+//		alert(msg);
+    }
 }
 
 function getTagData (tag) {
@@ -133,12 +133,6 @@ function output(arr) {
     //Optput however you want
     alert(arr.join("nn"));
 }
-/*
-function output(arr) {
-	//http://javascript.ru/window-location
-    var arraySearch = decodeURIComponent(location.search.substr(1)).split('&')
-}
-*/
 
 //http://stackoverflow.com/questions/523266/how-can-i-get-a-specific-parameter-from-location-search
 //Example how to use it: 

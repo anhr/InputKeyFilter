@@ -8,11 +8,7 @@
 	<!-- For compatibility of IE browser with audio element in the beep() function.
 	https://www.modern.ie/en-us/performance/how-to-use-x-ua-compatible -->
 	<meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<!--	
-	<link rel="stylesheet" href="../MyIsapi/InputKeyFilter.css" type="text/css">		
-	<script type="text/javascript" src="/js/Common.js"></script>
-	<script type="text/javascript" src="/js/InputKeyFilter.js"></script>
--->
+	
 	<!--
 		Get all scripts from current site.
 		You can edit all scripts,
@@ -24,7 +20,7 @@
  
 	<!--
 		Get all scripts from my project in gitgub https://github.com/anhr/InputKeyFilter.
-		You can use all my updates immediately if you getting all scripts from  my project in gitgub,
+		You can use all my updates immediately if you getting all scripts from my project in gitgub,
 		but you can not edit scripts, except if you do a contribute in my github project.
 		
 		See details in http://stackoverflow.com/questions/17341122/link-and-execute-external-javascript-file-hosted-on-github
@@ -41,121 +37,105 @@
 	You can filter the value as an integer number, a float number, or write a custom filter, such as a phone number filter.
 	<h1>Input Key Filter Test</h1>
 	Integer field: 
-	<!-- ATTENTION!!! The "focus out" event is not happens in FireFox, Android 2.3.6, Opera in Windows Phone -->
-	<input type="text"
-		onchange="javascript: onChangeNumber(this)"
-		onblur='javascript: onBlurNumber(this)'
-		onkeypress='return intFilter.onKeyPress(event);'
-		onkeyup='intFilter.onKeyUp(event);'/>
-		
+	<input id="Integer">
 	<script>
-		function onChangeNumber(input){
-			MyTooltip.RemoveMyTooltip();
-			var integer = parseInt(input.value);
-			if(intFilter.isNaN(integer, input))
-				return;
-			setTimeout(function() { alert("integer = " + integer) }, 0);
-		}
-		
-		function onBlurNumber(input){
-			intFilter.isNaN(parseInt(input.value), input);
-		}
+		CreateIntFilter("Integer", function(event){//onChange event
+				inputKeyFilter.RemoveMyTooltip();
+				var elementNewInteger = document.getElementById("NewInteger");
+				var integer = parseInt(this.value);
+				if(inputKeyFilter.isNaN(integer, this)){
+					elementNewInteger.innerHTML = "";
+					return;
+				}
+				//elementNewInteger.innerText = integer;//Uncompatible with FireFox
+				elementNewInteger.innerHTML = integer;
+			}
+			
+			//onblur event. Use this function if you want set focus to the input element again if input value is NaN. (empty or invalid)
+			, function(event){ inputKeyFilter.isNaN(parseInt(this.value), this); }
+		);
 	</script>
+	 New integer: <span id="NewInteger"></span>
+
 	<hr>
 	Float field: 
-	<input type="text"
+	<input id="Float" 
 		onchange="javascript: onChangeFloat(this)"
-		onblur='javascript: onBlurFloat(this)'
-		onkeypress='return floatFilter.onKeyPress(event);'
-		onkeyup='floatFilter.onKeyUp(event);'/>
+		onblur="inputKeyFilter.isNaN(parseFloat(this.value), this);"
+	/>
 	<script>
-		function onChangeFloat(input){
-			MyTooltip.RemoveMyTooltip();
-			var float = parseFloat(input.value);
-			if(floatFilter.isNaN(float, input))
-				return;
-			setTimeout(function() { alert("float = " + float) }, 0);
-		}
+		CreateFloatFilter("Float");
 		
-		function onBlurFloat(input){
-			floatFilter.isNaN(parseFloat(input.value), input);
+		function onChangeFloat(input){
+			inputKeyFilter.RemoveMyTooltip();
+			var elementNewFloat = document.getElementById("NewFloat");
+			var float = parseFloat(input.value);
+			if(inputKeyFilter.isNaN(float, input)){
+				elementNewFloat.innerHTML = "";
+				return;
+			}
+			elementNewFloat.innerHTML = float;
 		}
 	</script>
+	 New float: <span id="NewFloat"></span>
+
 	<hr>
 	Custom filter: 
-	<input type="text" value="+()--"
-		onchange="javascript: onChangePhoneNumber(this)"
-		onblur='javascript: onBlurPhoneNumber(this)'
-		onkeypress='return phoneNumberFilter.onKeyPress(event);'
-		onkeyup='phoneNumberFilter.onKeyUp(event);'/>
-		Please type a phone number in the +**(***)***-**-** format. Example: +1(23)456-78-90
+	<input id="PhoneNumber" value="+()--">
 	<script>
-		var phoneNumberFilter = {
-			arrayPhoneNumber: null
-			
-			, inputKeyFilter: new InputKeyFilter(
-				function(elementInput, value){
-					phoneNumberFilter.arrayPhoneNumber = value.match(/^(\+?\d*)\((\d*)\)(\d*)-?(\d*)-?(\d*)$/);
-					if(phoneNumberFilter.arrayPhoneNumber == null){
-						this.TextAdd(isRussian() ?
-								"Недопустимый формат телефонного номера"
-								: "Incorrect format of the phone number"
-							, elementInput);
-						if(elementInput.value == "")
-							elementInput.value = elementInput.defaultValue;
-						return false;
-					}
-					return true;
-				}
-			)
-			
-			, onKeyPress: function(evt){
-				return this.inputKeyFilter.onKeyPress(evt);
-			}
-			
-			, onKeyUp: function(evt){
-				return this.inputKeyFilter.onKeyUp(evt);
-			}
-			
-			, isNaN: function(value, elementInput){
-				return this.inputKeyFilter.isNaN(value, elementInput);
-			}
+		function getArrayPhoneNumber(value){
+			if (typeof value == 'undefined')
+				value = document.getElementById("PhoneNumber").value;
+			return value.match(/^(\+?\d*)\((\d*)\)(\d*)-?(\d*)-?(\d*)$/);
 		}
 		
 		function getPhoneNumber(){
-			if(!phoneNumberFilter.arrayPhoneNumber)
+			var arrayPhoneNumber = getArrayPhoneNumber();
+			if(!arrayPhoneNumber)
 				return "";
 				
-			var phoneNumber =
-				  phoneNumberFilter.arrayPhoneNumber[1]
-				+ phoneNumberFilter.arrayPhoneNumber[2]
-				+ phoneNumberFilter.arrayPhoneNumber[3]
-				+ phoneNumberFilter.arrayPhoneNumber[4]
-				+ phoneNumberFilter.arrayPhoneNumber[5]
-				;
+			var phoneNumber = arrayPhoneNumber[1] + arrayPhoneNumber[2] + arrayPhoneNumber[3] + arrayPhoneNumber[4] + arrayPhoneNumber[5];
 			return phoneNumber;
 		}
 		
-		function onChangePhoneNumber(input){
-			MyTooltip.RemoveMyTooltip();
-			
-			if(!phoneNumberFilter.arrayPhoneNumber || (phoneNumberFilter.arrayPhoneNumber.length != 6)){
-				setTimeout(function() { alert("Incorrect format of the phone number") }, 0);
-				return;
+		inputKeyFilter.Create("PhoneNumber", function(event){//onChange event
+				inputKeyFilter.RemoveMyTooltip();
+				
+				var arrayPhoneNumber = getArrayPhoneNumber();
+				if(!arrayPhoneNumber || (arrayPhoneNumber.length != 6)){
+					document.getElementById("NewPhoneNumber").innerHTML = "Incorrect format of the phone number";
+					return;
+				}
+				
+				var elementNewPhoneNumber = document.getElementById("NewPhoneNumber");
+				var phoneNumber = getPhoneNumber();
+				if(inputKeyFilter.isNaN(phoneNumber, this)){
+					elementNewPhoneNumber.innerHTML = "";
+					return;
+				}
+				elementNewPhoneNumber.innerHTML = phoneNumber;
+			}
+			, function(elementInput, value){//customFilter
+				var arrayPhoneNumber = getArrayPhoneNumber(value);
+				if(arrayPhoneNumber == null){
+					inputKeyFilter.TextAdd(isRussian() ?
+							"Недопустимый формат телефонного номера. Например: +1(234)56-78-90"
+							: "Incorrect format of the phone number. Example: +1(234)56-78-90"
+						, elementInput);
+					if(elementInput.value == "")
+						elementInput.value = elementInput.defaultValue;
+					return false;
+				}
+				return true;
 			}
 			
-			var phoneNumber = getPhoneNumber();
-			
-			if(phoneNumberFilter.isNaN(phoneNumber, input))
-				return;
-				
-			setTimeout(function() { alert("phoneNumber = " + phoneNumber) }, 0);
-		}
-		
-		function onBlurPhoneNumber(input){
-			phoneNumberFilter.isNaN(parseInt(getPhoneNumber()), input);
-		}
+			//onblur event. Use this function if you want set focus to the input element again if input value is NaN. (empty or invalid)
+			, function(event){ inputKeyFilter.isNaN(parseInt(getPhoneNumber()), this); }
+		);
 	</script>
+	 New phone number: <span id="NewPhoneNumber"></span>
+	<br/>
+	Please type a phone number in the +**(***)***-**-** format. Example: +1(23)456-78-90
 	<hr>
 	Have a job for me? Please read <a href='../AboutMe/' target="_blank">About Me</a>.
 </body>
