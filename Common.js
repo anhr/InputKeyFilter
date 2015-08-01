@@ -381,3 +381,19 @@ function invertHex(hexnum){
 	
 	return hexSumbol + resultnum;
 }
+
+//http://stackoverflow.com/questions/1074660/with-a-browser-how-do-i-know-which-decimal-separator-does-the-client-use
+function getDecimalSeparator() {
+	//fallback  
+	var decSep = ".";
+
+	try {
+		// this works in FF, Chrome, IE, Safari and Opera
+		var sep = parseFloat(3/2).toLocaleString().substring(1,2);
+		if (sep === '.' || sep === ',') {
+			decSep = sep;
+		}
+	} catch(e){}
+
+	return decSep;
+}

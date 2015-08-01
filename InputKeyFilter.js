@@ -22,6 +22,7 @@
 				);
 		}
 		element.customFilter = customFilter;
+		element.oldValue = element.value;
 		if((typeof onblur != 'undefined') && (onblur != null)){
 			if(element.onblur == null){
 				//Use this function if you want do not lose the focus of the input element if input value is NaN (empty or invalid)
@@ -48,11 +49,7 @@
 			var value = elementInput.value.substr(0,caretPos) + charCode + elementInput.value.substr(caretPos);
 //MessageElement(value + " elementInput.value: " + elementInput.value + " caretPos = " + caretPos + " oldValue: " + elementInput.oldValue);
 			if(!inputKeyFilter.filter(elementInput, value)){
-				var caretPos = getCaretPosition(elementInput);
-				if(typeof elementInput.oldValue != 'undefined')
-					elementInput.value = elementInput.oldValue;
-				else elementInput.value = "";//For Android 2.3.6
-				setCaretPosition(elementInput, caretPos);
+				inputKeyFilter.restoreValue(elementInput);
 				return false;
 			}
 			elementInput.oldValue = value;
@@ -74,17 +71,21 @@
 				return true;//Do not process the "key up" event if "key press" event fires
 			}
 			if(!inputKeyFilter.filter(elementInput)){
-				var caretPos = getCaretPosition(elementInput);
-				if(typeof elementInput.oldValue != 'undefined')
-					elementInput.value = elementInput.oldValue;
-				else elementInput.value = "";//For Android 2.3.6
-				setCaretPosition(elementInput, caretPos);
+				inputKeyFilter.restoreValue(elementInput);
 				return false;
 			}
 			elementInput.oldValue = elementInput.value;
 			inputKeyFilter.RemoveMyTooltip();
 			return true;
 		}
+	}
+	
+	, restoreValue: function(elementInput){
+		var caretPos = getCaretPosition(elementInput);
+		if(typeof elementInput.oldValue != 'undefined')
+			elementInput.value = elementInput.oldValue;
+		else elementInput.value = "";//For Android 2.3.6
+		setCaretPosition(elementInput, caretPos);
 	}
 	
 	//http://javascript.ru/forum/dom-window/7626-vsplyvayushhaya-podskazka.html
@@ -165,6 +166,14 @@
 		return true;
 	}
 	
+	, parseFloat: function(float){
+		return parseFloat(float.replace(",", "."));
+	}
+/*	
+	, toLocaleString: function(number){
+		return number.toLocaleString();
+	}
+*/	
 	, idMyTooltip: "myTooltip"
 	
 	, getMyTooltip: function(){
@@ -243,10 +252,12 @@ function CreateFloatFilter(elementID, onChange, onblur){
 		inputKeyFilter.Create(elementID
 			, onChange
 			, function(elementInput, value){//customFilter
-				if(value.match(/^(-?\d*)((\e(-?\d*)?)?|(\.(\d*)?)?)$/i) == null){
+				var decimalSeparator = getDecimalSeparator();
+//				if(value.match(/^(-?\d*)((\e(-?\d*)?)?|(\.(\d*)?)?)$/i) == null){
+				if(value.match(new RegExp("^(-?\\d*)((\\e(-?\\d*)?)?|(" + ((decimalSeparator == "." ? ("\\" + decimalSeparator) : decimalSeparator)) + "(\\d*)?)?)$", "i")) == null){
 					inputKeyFilter.TextAdd(isRussian() ?
-							"Допустимый формат: -[0...9].[0...9] или -[0...9]e-[0...9]. Например: -12.34 1234 12e34 -12E-34"
-							: "Acceptable formats: -[0...9].[0...9] or -[0...9]e-[0...9]. Examples: -12.34 1234 12e34 -12E-34"
+							"Допустимый формат: -[0...9]" + decimalSeparator + "[0...9] или -[0...9]e-[0...9]. Например: -12" + decimalSeparator + "34 1234 12e34 -12E-34"
+							: "Acceptable formats: -[0...9]" + decimalSeparator + "[0...9] or -[0...9]e-[0...9]. Examples: -12" + decimalSeparator + "34 1234 12e34 -12E-34"
 						, elementInput);
 					return false;
 				}

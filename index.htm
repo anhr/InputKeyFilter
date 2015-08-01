@@ -38,7 +38,7 @@
 	You can filter the value as an integer number, a float number, or write a custom filter, such as a phone number filter.
 	<h1>Input Key Filter Test</h1>
 	Integer field: 
-	<input id="Integer">
+	<input id="Integer" value="123">
 	<script>
 		CreateIntFilter("Integer", function(event){//onChange event
 				inputKeyFilter.RemoveMyTooltip();
@@ -60,7 +60,7 @@
 
 	<hr>
 	Float field: 
-	<input id="Float" 
+	<input id="Float"
 		onchange="javascript: onChangeFloat(this)"
 		onblur="inputKeyFilter.isNaN(parseFloat(this.value), this);"
 	/>
@@ -70,12 +70,12 @@
 		function onChangeFloat(input){
 			inputKeyFilter.RemoveMyTooltip();
 			var elementNewFloat = document.getElementById("NewFloat");
-			var float = parseFloat(input.value);
+			var float = inputKeyFilter.parseFloat(input.value);
 			if(inputKeyFilter.isNaN(float, input)){
 				elementNewFloat.innerHTML = "";
 				return;
 			}
-			elementNewFloat.innerHTML = float;
+			elementNewFloat.innerHTML = float + " or localized value: " + float.toLocaleString();
 		}
 	</script>
 	 New float: <span id="NewFloat"></span>
