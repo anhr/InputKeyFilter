@@ -1,18 +1,44 @@
-﻿var inputKeyFilter = {
+﻿/**
+ * A Javascript object of the cross-browser filter of value of the text input element on your web page using JavaScript language. You can filter the value as an integer number, a float number etc. , or write a custom filter, such as a phone number filter.
+ * Author: Andrej Hristoliubov
+ * email: anhr@mail.ru
+ * About me: https://googledrive.com/host/0B5hS0tFSGjBZfkhKS1VobnFDTkJKR0tVamxadmlvTmItQ2pxVWR0WDZPdHZxM2hzS1J3ejQ/AboutMe/
+ * source: https://github.com/anhr/InputKeyFilter
+ * Licences: GPL, The MIT License (MIT)
+ * Copyright: (c) 2015 Andrej Hristoliubov
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * 
+ * Revision:
+ *  2011-07-02, : 
+ *       + CreateEmailFilter
+ *
+ */
+ 
+var inputKeyFilter = {
 
-	Create: function(elementID, onChange, customFilter, onblur){
+	Create: function(elementID, onChange, customFilter, onblur, onkeypress, onkeyup){
 		var element = document.getElementById(elementID);
 		if(!element)
 			throw "Invalid id of Input Key Filter input element: " + elementID;
 		if(element.tagName.toUpperCase() != "INPUT")
 			throw "Use input element as Input Key Filter";
-		if(element.type.toLowerCase() != "text"){
-			var message = "Use input text element as Input Key Filter";
+			
+		var elementType = element.type.toLowerCase();
+		if	(
+				(elementType != "text")
+				&& (elementType != "email")
+				&& (elementType != "number")
+			){
+			var message = "element ID: '" + elementID + "' element type: '" + elementType + "'. Use input text element as Input Key Filter";
 			if(isIE)
 				throw message;
 			consoleError(message);
 			element.type = "text";
 		}
+		
 		if((typeof onChange != 'undefined') && (onChange != null)){
 			if(element.onchange == null)
 				element.onchange = onChange;
@@ -34,18 +60,25 @@
 				+ "\n\n or second:\n\n" + onblur
 				);
 		}
-		element.onkeypress = function(evt){
+		if((typeof onkeypress != 'undefined') && (onkeypress != null))
+			element.onkeypress = onkeypress;
+		else element.onkeypress = function(evt){
 			//http://stackoverflow.com/questions/469357/html-text-input-allow-only-numeric-input
 			//var elementInput = (evt.srcElement) ? evt.srcElement : evt.currentTarget;//Uncompatible with IE6
 			var elementInput = this;
-			elementInput.isKeypress = true;
 			var charCode = inputKeyFilter.getChar(evt);
 			
 			//for FireFox, Windows Phone Opera
 			if(!charCode)
 				return true;//Control codes. Examples: ArrowUp, ArrowLeft, Home, End, Backspace, Delete
 				
-			var caretPos = getCaretPosition(elementInput);
+			var caretPos;
+			try{
+				caretPos = getCaretPosition(elementInput);
+			}catch(e){
+				elementInput.isKeypress = false;
+				return true;//Go to onkeyup event. For Chrome and input type="number"
+			}
 			var value = elementInput.value.substr(0,caretPos) + charCode + elementInput.value.substr(caretPos);
 //MessageElement(value + " elementInput.value: " + elementInput.value + " caretPos = " + caretPos + " oldValue: " + elementInput.oldValue);
 			if(!inputKeyFilter.filter(elementInput, value)){
@@ -54,9 +87,12 @@
 			}
 			elementInput.oldValue = value;
 			inputKeyFilter.RemoveMyTooltip();
+			elementInput.isKeypress = true;
 			return true;
 		}
-		element.onkeyup = function(evt){
+		if((typeof onkeyup != 'undefined') && (onkeyup != null))
+			element.onkeyup = onkeyup;
+		else element.onkeyup = function(evt){
 			// Sometimes the "key press" event is not fires.
 			// For example if user press the control keys (ArrowUp, ArrowLeft, Home, End, Backspace, Delete etc).
 			// Some browsers (Internet Samsung Galaxy S5) is not support the "key press" event.
@@ -81,24 +117,32 @@
 	}
 	
 	, restoreValue: function(elementInput){
-		var caretPos = getCaretPosition(elementInput);
+		var caretPos = null;
+		try{
+			caretPos = getCaretPosition(elementInput);
+		}catch(e){//For Chrome and input type="number"
+		}
 		if(typeof elementInput.oldValue != 'undefined')
 			elementInput.value = elementInput.oldValue;
 		else elementInput.value = "";//For Android 2.3.6
-		setCaretPosition(elementInput, caretPos);
+		if(caretPos)
+			setCaretPosition(elementInput, caretPos);
 	}
 	
 	//http://javascript.ru/forum/dom-window/7626-vsplyvayushhaya-podskazka.html
 	, TextAdd: function(text, input){
-//consoleLog("inputKeyFilter.TextAdd(...)");
+consoleLog("inputKeyFilter.TextAdd(" + text + ") inputKeyFilter.focusAgain = " + inputKeyFilter.focusAgain);
+		if(isIE && inputKeyFilter.focusAgain)
+			return;
 		var element = inputKeyFilter.getMyTooltip();
 		if(!element){
 			element = document.createElement("span");
 			document.body.appendChild(element );
 			element.id = inputKeyFilter.idMyTooltip;
-			element.className = "downarrowdiv";
+			element.className = "uparrowdiv";//"downarrowdiv";
 			var offsetSum = getOffsetSum(input);
-			element.style.top = (offsetSum.top - input.offsetHeight - element.offsetHeight) + "px";
+			//element.style.top = (offsetSum.top - input.offsetHeight - element.offsetHeight) + "px";//for downarrowdiv style
+			element.style.top = (offsetSum.top + input.offsetHeight + 10) + "px";//for uparrowdiv style
 			element.style.left = offsetSum.left + "px";
 			element.style.opacity = "1"; // Полупрозрачный фон. Attention!!! opacity = "0.9" is not allowed for Opera 9.5 for Windows Mobile
 		}
@@ -107,8 +151,24 @@
 		setTimeout(function() { inputKeyFilter.RemoveMyTooltip() }, 3000);
 	}
 
+	//Validate of the input value if your browser supports HTML5
+	, validate: function(elementInput){
+//consoleLog("inputKeyFilter.filter(...). " + elementInput.validationMessage);
+		if(
+					(typeof elementInput.validationMessage != "undefined")//Your browser supports HTML5
+					&& (elementInput.validationMessage != "")
+				){
+			inputKeyFilter.TextAdd(elementInput.validationMessage, elementInput);
+			inputKeyFilter.focus(elementInput);
+			return false;
+		}
+		return true;
+	}
+	
 	, filter: function(elementInput, value){
-//consoleLog("inputKeyFilter.filter(...)");
+//consoleLog("inputKeyFilter.filter(...). " + elementInput.validationMessage);
+		if(!inputKeyFilter.validate(elementInput))
+			return false;
 		if(elementInput.customFilter){
 			if(typeof value == 'undefined')
 				value = elementInput.value;
@@ -138,6 +198,24 @@
 	
 	, focusAgain: false
 	
+	, focus: function(elementInput){
+//ErrorMessage("inputKeyFilter.focus(...) inputKeyFilter.focusAgain = " + inputKeyFilter.focusAgain, false, false);// + printStackTrace().join("\n"));
+return;//бесконечная петля в Opera WP
+		//I use a inputKeyFilter.focusAgain variable to prevent an infinite loop to give focus to an inputKeyFilter element in IE.
+		// For testing:
+		// open IE,
+		// go to https://googledrive.com/host/0B5hS0tFSGjBZfkhKS1VobnFDTkJKR0tVamxadmlvTmItQ2pxVWR0WDZPdHZxM2hzS1J3ejQ/InputKeyFilter/ site,
+		// give focus to the empty Integer field, then click to the empty Float field.
+		if(!isIE || !inputKeyFilter.focusAgain){
+//		if(!inputKeyFilter.focusAgain){
+			//do not works in Firefox https://bugzilla.mozilla.org/show_bug.cgi?id=53579
+			elementInput.focus();
+			inputKeyFilter.focusAgain = true;
+//			setTimeout(function() { ErrorMessage("setTimeout inputKeyFilter.focusAgain = " + inputKeyFilter.focusAgain, false, false); inputKeyFilter.focusAgain = false; }, 2000);
+		}
+		else inputKeyFilter.focusAgain = false;
+	}
+
 	// Set focus to the input element again if input value is NaN.
 	// You can call this function during processing of the "onblur", "onfocusout" and "onchange" events of the input element.
 	, isNaN: function(value, elementInput){
@@ -151,17 +229,8 @@
 				"Не числовое значение: " + value
 				: "number is an illegal number: " + value
 			, elementInput);
-			
-		//I use a inputKeyFilter.focusAgain variable to prevent an infinite loop to give focus to an inputKeyFilter element in IE.
-		// For testing:
-		// open IE,
-		// go to https://googledrive.com/host/0B5hS0tFSGjBZfkhKS1VobnFDTkJKR0tVamxadmlvTmItQ2pxVWR0WDZPdHZxM2hzS1J3ejQ/InputKeyFilter/ site,
-		// give focus to the empty Integer field, then click to the empty Float field.
-		if(!isIE || !inputKeyFilter.focusAgain){
-			//do not works in Firefox https://bugzilla.mozilla.org/show_bug.cgi?id=53579
-			elementInput.focus();
-			inputKeyFilter.focusAgain = true;
-		} else inputKeyFilter.focusAgain = false;
+		
+		this.focus(elementInput);
 		
 		return true;
 	}
@@ -169,11 +238,7 @@
 	, parseFloat: function(float){
 		return parseFloat(float.replace(",", "."));
 	}
-/*	
-	, toLocaleString: function(number){
-		return number.toLocaleString();
-	}
-*/	
+	
 	, idMyTooltip: "myTooltip"
 	
 	, getMyTooltip: function(){
@@ -252,9 +317,12 @@ function CreateFloatFilter(elementID, onChange, onblur){
 		inputKeyFilter.Create(elementID
 			, onChange
 			, function(elementInput, value){//customFilter
-				var decimalSeparator = getDecimalSeparator();
-//				if(value.match(/^(-?\d*)((\e(-?\d*)?)?|(\.(\d*)?)?)$/i) == null){
+				var decimalSeparator;
+				if(elementInput.type == "number")
+					decimalSeparator = ".";
+				else decimalSeparator = getDecimalSeparator();
 				if(value.match(new RegExp("^(-?\\d*)((\\e(-?\\d*)?)?|(" + ((decimalSeparator == "." ? ("\\" + decimalSeparator) : decimalSeparator)) + "(\\d*)?)?)$", "i")) == null){
+					decimalSeparator = getDecimalSeparator();
 					inputKeyFilter.TextAdd(isRussian() ?
 							"Допустимый формат: -[0...9]" + decimalSeparator + "[0...9] или -[0...9]e-[0...9]. Например: -12" + decimalSeparator + "34 1234 12e34 -12E-34"
 							: "Acceptable formats: -[0...9]" + decimalSeparator + "[0...9] or -[0...9]e-[0...9]. Examples: -12" + decimalSeparator + "34 1234 12e34 -12E-34"
@@ -267,5 +335,49 @@ function CreateFloatFilter(elementID, onChange, onblur){
 		)
 	} catch(e) {
 		consoleError("Create float filter failed. " + e);
+	}
+}
+
+function CreateEmailFilter(elementID, onChange, onblur){
+
+	document.getElementById(elementID).onChangeEmail = onChange;
+	
+	try{
+		inputKeyFilter.Create(elementID
+			, function(event){//onChange
+//consoleLog("CreateEmailFilter.onChange");
+				if(!this.customFilter(this))
+					return false;
+				this.onChangeEmail(event);
+			}
+			, function(elementInput, value){//customFilter
+				//For HTML5
+				if(!inputKeyFilter.validate(elementInput))
+					return false;
+					
+				//http://stackoverflow.com/questions/46155/validate-email-address-in-javascript
+				if(elementInput.value.match(/^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i) == null){
+					inputKeyFilter.TextAdd(isRussian() ?
+							"Допустимый формат: username@hostname."
+							: "Acceptable formats: username@hostname."
+						, elementInput);
+					inputKeyFilter.focus(elementInput);
+					return false;
+				}
+				return true;
+			}
+			, onblur
+			
+			//Do not filter input value if user press a key
+			, function(event){//onkeypress
+				return true;
+			}
+			//Do not filter input value if user press a key
+			, function(event){//onkeyup
+				return true;
+			}
+		)
+	} catch(e) {
+		consoleError("Create email filter failed. " + e);
 	}
 }

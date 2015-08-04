@@ -1,4 +1,5 @@
-﻿<!doctype html>
+﻿<!--<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">-->
+<!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
     <title>Input Key Filter Test</title>
@@ -38,7 +39,7 @@
 	You can filter the value as an integer number, a float number, or write a custom filter, such as a phone number filter.
 	<h1>Input Key Filter Test</h1>
 	Integer field: 
-	<input id="Integer" value="123">
+	<input type="number" id="Integer" value="123"/>
 	<script>
 		CreateIntFilter("Integer", function(event){//onChange event
 				inputKeyFilter.RemoveMyTooltip();
@@ -60,7 +61,7 @@
 
 	<hr>
 	Float field: 
-	<input id="Float"
+	<input type="number" step="any" id="Float"
 		onchange="javascript: onChangeFloat(this)"
 		onblur="inputKeyFilter.isNaN(parseFloat(this.value), this);"
 	/>
@@ -79,6 +80,23 @@
 		}
 	</script>
 	 New float: <span id="NewFloat"></span>
+
+	<hr>
+	Email: 
+<!--	<input id="Email"/>-->
+	<input type="email" id="Email" value="@"/>
+	<script>
+		CreateEmailFilter("Email", function(event){//onChange event
+				inputKeyFilter.RemoveMyTooltip();
+				var elementNewInteger = document.getElementById("NewEmail");
+				elementNewInteger.innerHTML = this.value;
+			}
+			
+			//onblur event. Use this function if you want set focus to the input element again if input value is NaN. (empty or invalid)
+			, function(event){ this.customFilter(this); }
+		);
+	</script>
+	 New email: <span id="NewEmail"></span>
 
 	<hr>
 	Custom filter: 

@@ -1,12 +1,62 @@
-﻿
+﻿/**
+ * Common Javascript code. I use it in my different projects
+ * Author: Andrej Hristoliubov
+ * email: anhr@mail.ru
+ * About me: https://googledrive.com/host/0B5hS0tFSGjBZfkhKS1VobnFDTkJKR0tVamxadmlvTmItQ2pxVWR0WDZPdHZxM2hzS1J3ejQ/AboutMe/
+ * source: https://github.com/anhr/InputKeyFilter https://github.com/anhr/ColorSelector
+ * Licences: GPL, The MIT License (MIT)
+ * Copyright: (c) 2015 Andrej Hristoliubov
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * 
+ * Revision:
+ *  2011-07-01, : 
+ *       + localization of the float value.
+ *
+ */
+
 //http://jsfiddle.net/9zxvE/238/
-var isOpera = !!window.opera || navigator.userAgent.indexOf('Opera') >= 0;
+var isOpera = false;
 // Opera 8.0+ (UA detection to detect Blink/v8-powered Opera)
-var isFirefox = typeof InstallTrigger !== 'undefined';   // Firefox 1.0+
-var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+var isFirefox = false;   // Firefox 1.0+
+var isSafari = false;
 // At least Safari 3+: "[object HTMLElementConstructor]"
-var isChrome = !!window.chrome;                          // Chrome 1+
-var isIE = window.navigator.userAgent.indexOf('MSIE ') != -1;//false;                            // At least IE6
+var isChrome = false;                          // Chrome 1+
+var isIE = false;                            // At least IE6
+
+isOpera = !!window.opera || navigator.userAgent.indexOf('Opera') >= 0;
+// Opera 8.0+ (UA detection to detect Blink/v8-powered Opera)
+if(!isOpera){
+	isFirefox = typeof InstallTrigger !== 'undefined';   // Firefox 1.0+
+	if(!isFirefox){
+		isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+		// At least Safari 3+: "[object HTMLElementConstructor]"
+		if(!isSafari){
+			isChrome = !!window.chrome;                          // Chrome 1+
+			if(!isChrome){
+				isIE = window.navigator.userAgent.indexOf('MSIE ') != -1;//false;                            // At least IE6
+				if(!isIE){
+				
+					//https://gist.github.com/jalbertbowden/5174156
+					var ieMobile = /IEMobile\/(\d+\.?(\d+)?)/.exec( navigator.userAgent );
+					ieMobile = ( !! window.ActiveXObject && ieMobile && (ieMobile.length >= 2) && +( ieMobile[1] ) ) || NaN;
+					if(isNaN(ieMobile)){
+						var msg = "browser type not found\n\n" + window.navigator.userAgent;
+						try
+						{
+							console.error(msg);
+						} catch(e) {
+							alert(msg);
+						}
+					}
+					isIE = true;
+				}
+			}
+		}
+	}
+}
 
 function MessageElement(Message){
 	var element = document.getElementById('Message');
