@@ -19,7 +19,7 @@
  
 var inputKeyFilter = {
 
-	Create: function(elementID, onChange, customFilter, onblur, onkeypress, onkeyup){
+	Create: function(elementID, onChange, customFilter, onblur, onkeypress, onkeyup, isNoRestoreValue){
 		var element = document.getElementById(elementID);
 		if(!element)
 			throw "Invalid id of Input Key Filter input element: " + elementID;
@@ -47,8 +47,11 @@ var inputKeyFilter = {
 				+ "\n\n or second:\n\n" + onChange
 				);
 		}
-		element.customFilter = customFilter;
-		element.oldValue = element.value;
+		element.ikf = new function(){
+		}
+		element.ikf.customFilter = customFilter;
+		if(!isNoRestoreValue)
+			element.ikf.oldValue = element.value;
 		if((typeof onblur != 'undefined') && (onblur != null)){
 			if(element.onblur == null){
 				//Use this function if you want do not lose the focus of the input element if input value is NaN (empty or invalid)
@@ -76,18 +79,19 @@ var inputKeyFilter = {
 			try{
 				caretPos = getCaretPosition(elementInput);
 			}catch(e){
-				elementInput.isKeypress = false;
+				elementInput.ikf.isKeypress = false;
 				return true;//Go to onkeyup event. For Chrome and input type="number"
 			}
 			var value = elementInput.value.substr(0,caretPos) + charCode + elementInput.value.substr(caretPos);
-//MessageElement(value + " elementInput.value: " + elementInput.value + " caretPos = " + caretPos + " oldValue: " + elementInput.oldValue);
+//MessageElement(value + " elementInput.value: " + elementInput.value + " caretPos = " + caretPos + " oldValue: " + elementInput.ikf.oldValue);
+			elementInput.ikf.isKeypress = true;
 			if(!inputKeyFilter.filter(elementInput, value)){
 				inputKeyFilter.restoreValue(elementInput);
 				return false;
 			}
-			elementInput.oldValue = value;
-			inputKeyFilter.RemoveMyTooltip();
-			elementInput.isKeypress = true;
+			if(typeof elementInput.ikf.oldValue != 'undefined')
+				elementInput.ikf.oldValue = value;
+//			inputKeyFilter.RemoveMyTooltip();
 			return true;
 		}
 		if((typeof onkeyup != 'undefined') && (onkeyup != null))
@@ -99,19 +103,20 @@ var inputKeyFilter = {
 			// The "key press" event is not fires in Android if you press a russian letter. see http://stackoverflow.com/questions/9302986/no-keypress-events-for-certain-keys-in-android-browser
 			// For resolving of the problem I have added the onKeyUp(...) function for "key up" event
 			// I can not to stop processing of the "key press" event because some browsers (Opera and IE in Windows Phone) do not support the "key up" event
-//consoleLog("onKeyUp(" + evt + ")");
 			//var elementInput = (evt.srcElement) ? evt.srcElement : evt.currentTarget;//Uncompatible with IE6
 			var elementInput = this;
-			if(elementInput.isKeypress){
-				elementInput.isKeypress = false;
+//consoleLog("onKeyUp(" + evt + ") elementInput.ikf.isKeypress = " + elementInput.ikf.isKeypress);
+			if(elementInput.ikf.isKeypress){
+				elementInput.ikf.isKeypress = false;
 				return true;//Do not process the "key up" event if "key press" event fires
 			}
 			if(!inputKeyFilter.filter(elementInput)){
 				inputKeyFilter.restoreValue(elementInput);
 				return false;
 			}
-			elementInput.oldValue = elementInput.value;
-			inputKeyFilter.RemoveMyTooltip();
+			if(typeof elementInput.ikf.oldValue != 'undefined')
+				elementInput.ikf.oldValue = elementInput.value;
+//			inputKeyFilter.RemoveMyTooltip();
 			return true;
 		}
 	}
@@ -122,16 +127,17 @@ var inputKeyFilter = {
 			caretPos = getCaretPosition(elementInput);
 		}catch(e){//For Chrome and input type="number"
 		}
-		if(typeof elementInput.oldValue != 'undefined')
-			elementInput.value = elementInput.oldValue;
-		else elementInput.value = "";//For Android 2.3.6
+		if(typeof elementInput.ikf.oldValue != 'undefined'){
+			elementInput.value = elementInput.ikf.oldValue;
+		}
+//		else elementInput.value = "";//For Android 2.3.6
 		if(caretPos)
 			setCaretPosition(elementInput, caretPos);
 	}
 	
 	//http://javascript.ru/forum/dom-window/7626-vsplyvayushhaya-podskazka.html
-	, TextAdd: function(text, input){
-consoleLog("inputKeyFilter.TextAdd(" + text + ") inputKeyFilter.focusAgain = " + inputKeyFilter.focusAgain);
+	, TextAdd: function(text, elementInput){
+//consoleLog("inputKeyFilter.TextAdd(" + text + ") inputKeyFilter.focusAgain = " + inputKeyFilter.focusAgain);
 		if(isIE && inputKeyFilter.focusAgain)
 			return;
 		var element = inputKeyFilter.getMyTooltip();
@@ -140,15 +146,16 @@ consoleLog("inputKeyFilter.TextAdd(" + text + ") inputKeyFilter.focusAgain = " +
 			document.body.appendChild(element );
 			element.id = inputKeyFilter.idMyTooltip;
 			element.className = "uparrowdiv";//"downarrowdiv";
-			var offsetSum = getOffsetSum(input);
-			//element.style.top = (offsetSum.top - input.offsetHeight - element.offsetHeight) + "px";//for downarrowdiv style
-			element.style.top = (offsetSum.top + input.offsetHeight + 10) + "px";//for uparrowdiv style
+			var offsetSum = getOffsetSum(elementInput);
+			//element.style.top = (offsetSum.top - elementInput.offsetHeight - element.offsetHeight) + "px";//for downarrowdiv style
+			element.style.top = (offsetSum.top + elementInput.offsetHeight + 10) + "px";//for uparrowdiv style
 			element.style.left = offsetSum.left + "px";
 			element.style.opacity = "1"; // Полупрозрачный фон. Attention!!! opacity = "0.9" is not allowed for Opera 9.5 for Windows Mobile
 		}
 		element.innerHTML = text;
 		beep();
-		setTimeout(function() { inputKeyFilter.RemoveMyTooltip() }, 3000);
+		if(typeof elementInput.ikf.oldValue != 'undefined')
+			setTimeout(function() { inputKeyFilter.RemoveMyTooltip() }, 3000);
 	}
 
 	//Validate of the input value if your browser supports HTML5
@@ -166,13 +173,16 @@ consoleLog("inputKeyFilter.TextAdd(" + text + ") inputKeyFilter.focusAgain = " +
 	}
 	
 	, filter: function(elementInput, value){
-//consoleLog("inputKeyFilter.filter(...). " + elementInput.validationMessage);
+//consoleLog("inputKeyFilter.filter(...)\n\n" + printStackTrace().join("nn"));
 		if(!inputKeyFilter.validate(elementInput))
 			return false;
-		if(elementInput.customFilter){
+		if(elementInput.ikf.customFilter){
 			if(typeof value == 'undefined')
 				value = elementInput.value;
-			return elementInput.customFilter(elementInput, value);
+			if(!elementInput.ikf.customFilter(elementInput, value))
+				return false;
+			inputKeyFilter.RemoveMyTooltip();
+			return true;
 		}
 		consoleError("customFilter is not defined!");
 	}
@@ -182,8 +192,9 @@ consoleLog("inputKeyFilter.TextAdd(" + text + ") inputKeyFilter.focusAgain = " +
 	, getChar: function(event){
 //alert("event: " + event);
 		if (!event) event = window.event;//for IE6
-		if (event.which == null) { // IE
-//		if (typeof event.which == 'undefined') { // IE
+		if (event.which == null)// IE
+//		if (typeof event.which == 'undefined')// IE
+		{
 			if (event.keyCode < 32) return null; // Control codes. Examples: ArrowUp, ArrowLeft, Home, End, Backspace, Delete
 			return String.fromCharCode(event.keyCode)
 		}
@@ -206,8 +217,9 @@ return;//бесконечная петля в Opera WP
 		// open IE,
 		// go to https://googledrive.com/host/0B5hS0tFSGjBZfkhKS1VobnFDTkJKR0tVamxadmlvTmItQ2pxVWR0WDZPdHZxM2hzS1J3ejQ/InputKeyFilter/ site,
 		// give focus to the empty Integer field, then click to the empty Float field.
-		if(!isIE || !inputKeyFilter.focusAgain){
-//		if(!inputKeyFilter.focusAgain){
+		if(!isIE || !inputKeyFilter.focusAgain)
+//		if(!inputKeyFilter.focusAgain)
+		{
 			//do not works in Firefox https://bugzilla.mozilla.org/show_bug.cgi?id=53579
 			elementInput.focus();
 			inputKeyFilter.focusAgain = true;
@@ -219,8 +231,8 @@ return;//бесконечная петля в Opera WP
 	// Set focus to the input element again if input value is NaN.
 	// You can call this function during processing of the "onblur", "onfocusout" and "onchange" events of the input element.
 	, isNaN: function(value, elementInput){
-//consoleLog("inputKeyFilter.isNaN(...). elementInput.isKeypress = " + elementInput.isKeypress);
-		elementInput.isKeypress = true;
+//consoleLog("inputKeyFilter.isNaN(...). elementInput.ikf.isKeypress = " + elementInput.ikf.isKeypress);
+		elementInput.ikf.isKeypress = true;
 		if(!isNaN(value)){
 			return false;
 		}
@@ -246,6 +258,7 @@ return;//бесконечная петля в Opera WP
 	}
 	
 	, RemoveMyTooltip: function(){
+//consoleLog("RemoveMyTooltip\n\n" + printStackTrace().join("nn"));
 		var element = this.getMyTooltip();
 		if(!element)
 			return;
@@ -257,6 +270,25 @@ return;//бесконечная петля в Opera WP
 		var element = this.getMyTooltip();
 		if(!element)
 			return;
+/*			
+		//width
+		if(typeof element.deltaWidth == 'undefined'){
+			element.offsetWidthIkf = element.offsetWidth;
+			element.deltaWidth = parseInt(element.offsetWidth / 10);
+		}
+		element.offsetWidthIkf -= element.deltaWidth;
+		element.style.width = element.offsetWidthIkf + "px";
+		
+		//height
+		if(typeof element.deltaHeight == 'undefined'){
+			element.offsetHeightIkf = element.offsetHeight;
+			element.deltaHeight = parseInt(element.offsetHeight / 10);
+		}
+		element.offsetHeightIkf -= element.deltaHeight;
+		element.style.height = element.offsetHeightIkf + "px";
+		
+consoleLog("element.offsetWidth = " + element.offsetWidth + " element.offsetHeight = " + element.offsetHeight);
+*/
 		var opacity = parseFloat(element.style.opacity) - 0.1;
 		if(opacity < 0){
 			document.body.removeChild(element);
@@ -346,7 +378,7 @@ function CreateEmailFilter(elementID, onChange, onblur){
 		inputKeyFilter.Create(elementID
 			, function(event){//onChange
 //consoleLog("CreateEmailFilter.onChange");
-				if(!this.customFilter(this))
+				if(!this.ikf.customFilter(this))
 					return false;
 				this.onChangeEmail(event);
 			}
@@ -367,7 +399,7 @@ function CreateEmailFilter(elementID, onChange, onblur){
 				return true;
 			}
 			, onblur
-			
+/*			
 			//Do not filter input value if user press a key
 			, function(event){//onkeypress
 				return true;
@@ -376,6 +408,10 @@ function CreateEmailFilter(elementID, onChange, onblur){
 			, function(event){//onkeyup
 				return true;
 			}
+*/			
+			, null//onkeypress
+			, null//onkeyup
+			, true//isNoRestoreValue
 		)
 	} catch(e) {
 		consoleError("Create email filter failed. " + e);
