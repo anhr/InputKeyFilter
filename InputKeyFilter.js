@@ -154,7 +154,7 @@ var inputKeyFilter = {
 		}
 		element.innerHTML = text;
 		beep();
-		if(typeof elementInput.ikf.oldValue != 'undefined')
+//		if(typeof elementInput.ikf.oldValue != 'undefined')
 			setTimeout(function() { inputKeyFilter.RemoveMyTooltip() }, 3000);
 	}
 
@@ -211,7 +211,7 @@ var inputKeyFilter = {
 	
 	, focus: function(elementInput){
 //ErrorMessage("inputKeyFilter.focus(...) inputKeyFilter.focusAgain = " + inputKeyFilter.focusAgain, false, false);// + printStackTrace().join("\n"));
-return;//бесконечная петля в Opera WP
+return;//infinity loop in Opera WP
 		//I use a inputKeyFilter.focusAgain variable to prevent an infinite loop to give focus to an inputKeyFilter element in IE.
 		// For testing:
 		// open IE,
