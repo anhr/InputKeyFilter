@@ -19,7 +19,7 @@
  
 var inputKeyFilter = {
 
-	Create: function(elementID, onChange, customFilter, onblur, onkeypress, onkeyup, isNoRestoreValue){
+	Create: function(elementID, onChange, customFilter, onblur, onkeypress, onkeyup, isNoRestoreValue, validated){
 		var element = document.getElementById(elementID);
 		if(!element)
 			throw "Invalid id of Input Key Filter input element: " + elementID;
@@ -31,6 +31,7 @@ var inputKeyFilter = {
 				(elementType != "text")
 				&& (elementType != "email")
 				&& (elementType != "number")
+				&& (elementType != "password")
 			){
 			var message = "element ID: '" + elementID + "' element type: '" + elementType + "'. Use input text element as Input Key Filter";
 			if(isIE)
@@ -86,6 +87,8 @@ var inputKeyFilter = {
 //MessageElement(value + " elementInput.value: " + elementInput.value + " caretPos = " + caretPos + " oldValue: " + elementInput.ikf.oldValue);
 			elementInput.ikf.isKeypress = true;
 			if(!inputKeyFilter.filter(elementInput, value)){
+				if(typeof elementInput.ikf.oldValue == 'undefined')
+					return true;
 				inputKeyFilter.restoreValue(elementInput);
 				return false;
 			}
@@ -119,6 +122,8 @@ var inputKeyFilter = {
 //			inputKeyFilter.RemoveMyTooltip();
 			return true;
 		}
+		if((typeof validated != 'undefined') && (validated != null))
+			element.ikf.validated = validated;
 	}
 	
 	, restoreValue: function(elementInput){
@@ -135,27 +140,36 @@ var inputKeyFilter = {
 			setCaretPosition(elementInput, caretPos);
 	}
 	
+	, timeout_id: null
+	
+	, CreateTooltip: function(text, elementInput, className){
+		clearTimeout(inputKeyFilter.timeout_id);
+		var element = inputKeyFilter.getMyTooltip();
+		if(element)
+			document.body.removeChild(element);
+		element = document.createElement("span");
+		document.body.appendChild(element );
+		element.id = inputKeyFilter.idMyTooltip;
+		var offsetSum = getOffsetSum(elementInput);
+		//element.style.top = (offsetSum.top - elementInput.offsetHeight - element.offsetHeight) + "px";//for downarrowdiv style
+		element.style.top = (offsetSum.top + elementInput.offsetHeight + 10) + "px";//for uparrowdiv style
+		element.style.left = offsetSum.left + "px";
+		element.style.opacity = "1"; // Полупрозрачный фон. Attention!!! opacity = "0.9" is not allowed for Opera 9.5 for Windows Mobile
+		element.className = className;//"uparrowdiv";//"downarrowdiv";
+		element.innerHTML = text;
+//		if(typeof elementInput.ikf.oldValue != 'undefined')
+			inputKeyFilter.timeout_id = setTimeout(function() { inputKeyFilter.RemoveMyTooltip() }, 3000);
+	}
+	
 	//http://javascript.ru/forum/dom-window/7626-vsplyvayushhaya-podskazka.html
-	, TextAdd: function(text, elementInput){
+	, TextAdd: function(text, elementInput, className){
 //consoleLog("inputKeyFilter.TextAdd(" + text + ") inputKeyFilter.focusAgain = " + inputKeyFilter.focusAgain);
 		if(isIE && inputKeyFilter.focusAgain)
 			return;
-		var element = inputKeyFilter.getMyTooltip();
-		if(!element){
-			element = document.createElement("span");
-			document.body.appendChild(element );
-			element.id = inputKeyFilter.idMyTooltip;
-			element.className = "uparrowdiv";//"downarrowdiv";
-			var offsetSum = getOffsetSum(elementInput);
-			//element.style.top = (offsetSum.top - elementInput.offsetHeight - element.offsetHeight) + "px";//for downarrowdiv style
-			element.style.top = (offsetSum.top + elementInput.offsetHeight + 10) + "px";//for uparrowdiv style
-			element.style.left = offsetSum.left + "px";
-			element.style.opacity = "1"; // Полупрозрачный фон. Attention!!! opacity = "0.9" is not allowed for Opera 9.5 for Windows Mobile
-		}
-		element.innerHTML = text;
+		if((typeof className == 'undefined') || (className == null))
+			className = "uparrowdivred";
+		inputKeyFilter.CreateTooltip(text, elementInput, className);
 		beep();
-//		if(typeof elementInput.ikf.oldValue != 'undefined')
-			setTimeout(function() { inputKeyFilter.RemoveMyTooltip() }, 3000);
 	}
 
 	//Validate of the input value if your browser supports HTML5
@@ -181,7 +195,14 @@ var inputKeyFilter = {
 				value = elementInput.value;
 			if(!elementInput.ikf.customFilter(elementInput, value))
 				return false;
-			inputKeyFilter.RemoveMyTooltip();
+			if(typeof elementInput.ikf.validated != 'undefined'){
+//consoleLog("validated");
+				inputKeyFilter.CreateTooltip(isRussian() ?
+						"Проверено"
+						: "Validated"
+					, elementInput, "uparrowdivgreen");
+			}
+			else inputKeyFilter.RemoveMyTooltip();
 			return true;
 		}
 		consoleError("customFilter is not defined!");
@@ -412,8 +433,26 @@ function CreateEmailFilter(elementID, onChange, onblur){
 			, null//onkeypress
 			, null//onkeyup
 			, true//isNoRestoreValue
+			, true//validated
 		)
 	} catch(e) {
 		consoleError("Create email filter failed. " + e);
+	}
+}
+
+
+function CreatePasswordFilter(elementID, customFilter, onChange, onblur){
+	try{
+		inputKeyFilter.Create(elementID
+			, onChange
+			, customFilter
+			, onblur
+			, null//onkeypress
+			, null//onkeyup
+			, true//isNoRestoreValue
+			, true//validated
+		)
+	} catch(e) {
+		consoleError("Create password filter failed. " + e);
 	}
 }

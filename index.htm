@@ -209,6 +209,91 @@
 		);
 	</script>
 	 New, multiple of 5 number: <span id="NewMultipleOf5"></span>
+
+	<hr>
+	Password: 
+	<input type="password" id="Password"
+		onchange="javascript: onChangePassword(this)"
+		onblur="javascript: this.ikf.customFilter(this)"
+	/>
+	<script>
+		function onChangePassword(input){
+			inputKeyFilter.RemoveMyTooltip();
+			if(!input.ikf.customFilter(input))
+				return false;
+			var elementNewPassword = document.getElementById("NewPassword");
+			elementNewPassword.innerHTML = input.value;
+		}
+		CreatePasswordFilter("Password"
+			, function(elementInput, value){//customFilter
+//consoleLog("password customFilter. elementInput = " + elementInput + "\n\n" + printStackTrace().join("nn"));
+
+					if(typeof value == 'undefined')
+						value = elementInput.value;
+						
+					var array = value.match(/([^a-zA-Z\d]+)/);
+					if(array != null){
+						inputKeyFilter.TextAdd(isRussian() ?
+								"Недопустимый символ: " + array[0]
+								: "Invalid symbol: " + array[0]
+							, elementInput, "uparrowdivred");
+						inputKeyFilter.focus(elementInput);
+						return false;
+					}
+					var passwordLengthMin = 6;
+					if(value.length < passwordLengthMin){
+						inputKeyFilter.TextAdd(isRussian() ?
+								"Пароль должен быть длиннее " + passwordLengthMin + " символов."
+								: "The password at least " + passwordLengthMin + " characters."
+							, elementInput);
+						inputKeyFilter.focus(elementInput);
+						return false;
+					}
+					if(value.match(/(\d+)/i) == null){
+						inputKeyFilter.TextAdd(isRussian() ?
+								"Введите хотя бы одну цифру."
+								: "The password must contain at least one digit."
+							, elementInput, "uparrowdivyellow");
+						inputKeyFilter.focus(elementInput);
+						return false;
+					}
+					if(value.match(/([a-z]+)/) == null){
+						inputKeyFilter.TextAdd(isRussian() ?
+								"Введите хотя бы одну латинскую букву."
+								: "The password must contain at least one letter."
+							, elementInput, "uparrowdivyellow");
+						inputKeyFilter.focus(elementInput);
+						return false;
+					}
+					if(value.match(/([A-Z]+)/) == null){
+						inputKeyFilter.TextAdd(isRussian() ?
+								"Введите хотя бы одну заглавную латинскую букву."
+								: "The password must contain at least one upper-case letter."
+							, elementInput, "uparrowdivyellow");
+						inputKeyFilter.focus(elementInput);
+						return false;
+					}
+					return true;
+				}
+/*				
+//			, null//onChange
+			, function(event){//onChange
+					input = this;
+					inputKeyFilter.RemoveMyTooltip();
+					if(!input.ikf.customFilter(input))
+						return false;
+					var elementNewPassword = document.getElementById("NewPassword");
+					elementNewPassword.innerHTML = input.value;
+				}
+//			, null//onblur
+			, function(event){//onblur
+					this.ikf.customFilter(this);
+				}
+*/				
+		);
+	</script>
+	 New password: <span id="NewPassword"></span>
+	 
 	<hr>
 	Have a job for me? Please read <a href='../AboutMe/' target="_blank">About Me</a>.
 </body>
