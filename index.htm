@@ -84,7 +84,7 @@
 	<hr>
 	Email: 
 <!--	<input id="Email"/>-->
-	<input type="email" id="Email" value="@"/>
+	<input type="email" id="Email" value="username@domain.com"/>
 	<script>
 		CreateEmailFilter("Email", function(event){//onChange event
 				inputKeyFilter.RemoveMyTooltip();
@@ -97,6 +97,22 @@
 		);
 	</script>
 	 New email: <span id="NewEmail"></span>
+
+	<hr>
+	URL: 
+	<input type="url" id="Url" value=":"/>
+	<script>
+		CreateUrlFilter("Url", function(event){//onChange event
+				inputKeyFilter.RemoveMyTooltip();
+				var elementNewInteger = document.getElementById("NewUrl");
+				elementNewInteger.innerHTML = this.value;
+			}
+			
+			//onblur event. Use this function if you want set focus to the input element again if input value is NaN. (empty or invalid)
+			, function(event){ this.ikf.customFilter(this); }
+		);
+	</script>
+	 New URL: <span id="NewUrl"></span>
 
 	<hr>
 	Custom filter: 

@@ -32,6 +32,7 @@ var inputKeyFilter = {
 				&& (elementType != "email")
 				&& (elementType != "number")
 				&& (elementType != "password")
+				&& (elementType != "url")
 			){
 			var message = "element ID: '" + elementID + "' element type: '" + elementType + "'. Use input text element as Input Key Filter";
 			if(isIE)
@@ -75,7 +76,16 @@ var inputKeyFilter = {
 			//for FireFox, Windows Phone Opera
 			if(!charCode)
 				return true;//Control codes. Examples: ArrowUp, ArrowLeft, Home, End, Backspace, Delete
-				
+/*				
+			var elementType = elementInput.type.toLowerCase();
+			if	(
+					(elementType == "email")
+					|| (elementType == "url")
+				){
+				elementInput.ikf.isKeypress = false;
+				return true;//Go to onkeyup event.
+			}
+*/				
 			var caretPos;
 			try{
 				caretPos = getCaretPosition(elementInput);
@@ -188,8 +198,11 @@ var inputKeyFilter = {
 	
 	, filter: function(elementInput, value){
 //consoleLog("inputKeyFilter.filter(...)\n\n" + printStackTrace().join("nn"));
+
+		//for float number
 		if(!inputKeyFilter.validate(elementInput))
 			return false;
+			
 		if(elementInput.ikf.customFilter){
 			if(typeof value == 'undefined')
 				value = elementInput.value;
@@ -401,7 +414,8 @@ function CreateEmailFilter(elementID, onChange, onblur){
 //consoleLog("CreateEmailFilter.onChange");
 				if(!this.ikf.customFilter(this))
 					return false;
-				this.onChangeEmail(event);
+				if(this.onChangeEmail != null)
+					this.onChangeEmail(event);
 			}
 			, function(elementInput, value){//customFilter
 				//For HTML5
@@ -440,6 +454,51 @@ function CreateEmailFilter(elementID, onChange, onblur){
 	}
 }
 
+function CreateUrlFilter(elementID, onChange, onblur){
+
+	document.getElementById(elementID).onChangeUrl = onChange;
+	
+	try{
+		inputKeyFilter.Create(elementID
+			, function(event){//onChange
+//consoleLog("CreateUrlFilter.onChange");
+				if(!this.ikf.customFilter(this))
+					return false;
+				if(this.onChangeUrl != null)
+					this.onChangeUrl(event);
+			}
+			, function(elementInput, value){//customFilter
+			
+				//For HTML5
+				if(!inputKeyFilter.validate(elementInput))
+					return false;
+					
+				//http://www.w3schools.com/html/tryit.asp?filename=tryhtml_input_url
+				//http://stackoverflow.com/questions/1410311/regular-expression-for-url-validation-in-javascript
+				if(elementInput.value.match(/^[a-z]+:[^:]+$/i) == null){
+					inputKeyFilter.TextAdd(isRussian() ?
+							"Допустимый формат: protocol:hostname."
+							: "Acceptable formats: protocol:hostname."
+						, elementInput);
+					inputKeyFilter.focus(elementInput);
+					return false;
+				}
+				
+				return true;
+			}
+			, onblur
+			//Do not filter input value if user press a key
+			, function(event){//onkeypress
+				return true;
+			}
+			, null//onkeyup
+			, true//isNoRestoreValue
+			, true//validated
+		)
+	} catch(e) {
+		consoleError("Create URL filter failed. " + e);
+	}
+}
 
 function CreatePasswordFilter(elementID, customFilter, onChange, onblur){
 	try{
