@@ -61,7 +61,10 @@
 
 	<hr>
 	Float field: 
+	<!-- The E format (example -12E-34) is not allowed
 	<input type="number" step="any" id="Float"
+	-->
+	<input id="Float"
 		onchange="javascript: onChangeFloat(this)"
 		onblur="inputKeyFilter.isNaN(parseFloat(this.value), this);"
 	/>
