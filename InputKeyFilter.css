@@ -12,6 +12,7 @@
 	margin-bottom:2em;
 	border:2px solid #a0ffFf;
 	cursor:help;
+	color:White
 }
 
 .uparrowdivred:after{ /*arrow added to uparrowdiv DIV*/
@@ -68,6 +69,7 @@
 	margin-bottom:2em;
 	border:2px solid #a0ffFf;
 	cursor:help;
+	color:White
 }
 
 .uparrowdivgreen:after{ /*arrow added to uparrowdiv DIV*/

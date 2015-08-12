@@ -434,17 +434,17 @@ function CreateEmailFilter(elementID, onChange, onblur){
 				return true;
 			}
 			, onblur
-/*			
 			//Do not filter input value if user press a key
 			, function(event){//onkeypress
 				return true;
 			}
+/*			
+			, null//onkeypress
 			//Do not filter input value if user press a key
 			, function(event){//onkeyup
 				return true;
 			}
 */			
-			, null//onkeypress
 			, null//onkeyup
 			, true//isNoRestoreValue
 			, true//validated
