@@ -76,31 +76,25 @@ var inputKeyFilter = {
 			//for FireFox, Windows Phone Opera
 			if(!charCode)
 				return true;//Control codes. Examples: ArrowUp, ArrowLeft, Home, End, Backspace, Delete
-/*				
-			var elementType = elementInput.type.toLowerCase();
-			if	(
-					(elementType == "email")
-					|| (elementType == "url")
-				){
-				elementInput.ikf.isKeypress = false;
-				return true;//Go to onkeyup event.
-			}
-*/				
 			var caretPos;
 			try{
 				caretPos = getCaretPosition(elementInput);
 			}catch(e){
 				elementInput.ikf.isKeypress = false;
+				inputKeyFilter.filter(elementInput, charCode);
 				return true;//Go to onkeyup event. For Chrome and input type="number"
 			}
 			var value = elementInput.value.substr(0,caretPos) + charCode + elementInput.value.substr(caretPos);
 //MessageElement(value + " elementInput.value: " + elementInput.value + " caretPos = " + caretPos + " oldValue: " + elementInput.ikf.oldValue);
 			elementInput.ikf.isKeypress = true;
 			if(!inputKeyFilter.filter(elementInput, value)){
+				return !inputKeyFilter.restoreValue(elementInput);
+/*			
 				if(typeof elementInput.ikf.oldValue == 'undefined')
 					return true;
 				inputKeyFilter.restoreValue(elementInput);
 				return false;
+*/				
 			}
 			if(typeof elementInput.ikf.oldValue != 'undefined')
 				elementInput.ikf.oldValue = value;
@@ -137,17 +131,22 @@ var inputKeyFilter = {
 	}
 	
 	, restoreValue: function(elementInput){
+//consoleLog("elementInput.ikf.isNoRestoreValue = " + elementInput.ikf.isNoRestoreValue + " elementInput.ikf.oldValue = " + elementInput.ikf.oldValue);
+		if(elementInput.ikf.isNoRestoreValue || (typeof elementInput.ikf.oldValue == 'undefined')){
+			return false;
+		}
 		var caretPos = null;
 		try{
 			caretPos = getCaretPosition(elementInput);
 		}catch(e){//For Chrome and input type="number"
 		}
-		if(typeof elementInput.ikf.oldValue != 'undefined'){
+//		if(typeof elementInput.ikf.oldValue != 'undefined'){
 			elementInput.value = elementInput.ikf.oldValue;
-		}
+//		}
 //		else elementInput.value = "";//For Android 2.3.6
 		if(caretPos)
 			setCaretPosition(elementInput, caretPos);
+		return true;
 	}
 	
 	, timeout_id: null
@@ -332,6 +331,38 @@ consoleLog("element.offsetWidth = " + element.offsetWidth + " element.offsetHeig
 		element.style.filter = "alpha(Opacity=" + parseInt(opacity * 100) + ")"; // Прозрачность в IE
 		setTimeout(function() { inputKeyFilter.opacityMyTooltip() }, 100);
 	}
+	
+	, isMinMax: function(elementInput, value, isFloat){
+		var min;
+		var max;
+		if(isFloat == true){
+			value = inputKeyFilter.parseFloat(value);
+			min = parseFloat(elementInput.min);
+			max = parseFloat(elementInput.max);
+		}else{
+			value = parseInt(value);
+			min = parseInt(elementInput.min);
+			max = parseInt(elementInput.max);
+		}
+		if(elementInput.min && (value < min)){
+			elementInput.ikf.isNoRestoreValue = true;
+			inputKeyFilter.TextAdd(isRussian() ?
+					"Значение должно быть больше или равно " + elementInput.min
+					: "Please select a value that is no less than " + elementInput.min
+				, elementInput);
+			return false;
+		}
+		if(elementInput.max && (value > max)){
+			elementInput.ikf.isNoRestoreValue = true;
+			inputKeyFilter.TextAdd(isRussian() ?
+					"Значение должно быть меньше или равно " + elementInput.max
+					: "Please select a value that is no more than " + elementInput.max
+				, elementInput);
+			return false;
+		}
+		return true;
+	}
+	
 }//inputKeyFilter
 
 //Negative and positive integer value of the input element is allowed
@@ -340,6 +371,7 @@ function CreateIntFilter(elementID, onChange, onblur){
 		inputKeyFilter.Create(elementID
 			, onChange
 			, function(elementInput, value){//customFilter
+				elementInput.ikf.isNoRestoreValue = false;
 				if(value.match(/^(-?\d*)$/) == null){
 					inputKeyFilter.TextAdd(isRussian() ?
 							"Допустимый формат: -[0...9]. Например: -1234 1234"
@@ -347,9 +379,17 @@ function CreateIntFilter(elementID, onChange, onblur){
 						, elementInput);
 					return false;
 				}
-				return true;
+				return inputKeyFilter.isMinMax(elementInput, value);
 			}
-			, onblur
+			, onblur ? 
+				onblur
+				: document.getElementById(elementID).onblur ?
+					null
+					: function(event){
+						if(inputKeyFilter.isNaN(parseInt(this.value), this))
+							return;
+						inputKeyFilter.isMinMax(this, this.value);
+					}
 		)
 	} catch(e) {
 		consoleError("Create integer filter failed. " + e);
@@ -362,6 +402,7 @@ function CreateIntPositiveFilter(elementID, onChange, onblur){
 		inputKeyFilter.Create(elementID
 			, onChange
 			, function(elementInput, value){//customFilter
+				elementInput.ikf.isNoRestoreValue = false;
 				if(value.match(/^(\d*)$/) == null){
 					inputKeyFilter.TextAdd(isRussian() ?
 							"Допустимый формат: [0...9]. Например: 1234"
@@ -369,9 +410,17 @@ function CreateIntPositiveFilter(elementID, onChange, onblur){
 						, elementInput);
 					return false;
 				}
-				return true;
+				return inputKeyFilter.isMinMax(elementInput, value);
 			}
-			, onblur
+			, onblur ? 
+				onblur
+				: document.getElementById(elementID).onblur ?
+					null
+					: function(event){
+						if(inputKeyFilter.isNaN(parseInt(this.value), this))
+							return;
+						inputKeyFilter.isMinMax(this, this.value);
+					}
 		)
 	} catch(e) {
 		consoleError("Create positive integer filter failed. " + e);
@@ -383,6 +432,7 @@ function CreateFloatFilter(elementID, onChange, onblur){
 		inputKeyFilter.Create(elementID
 			, onChange
 			, function(elementInput, value){//customFilter
+				elementInput.ikf.isNoRestoreValue = false;
 				var decimalSeparator;
 				if(elementInput.type == "number")
 					decimalSeparator = ".";
@@ -395,9 +445,17 @@ function CreateFloatFilter(elementID, onChange, onblur){
 						, elementInput);
 					return false;
 				}
-				return true;
+				return inputKeyFilter.isMinMax(elementInput, value, true);
 			}
-			, onblur
+			, onblur ? 
+				onblur
+				: document.getElementById(elementID).onblur ?
+					null
+					: function(event){
+					if(inputKeyFilter.isNaN(parseFloat(this.value), this))
+						return;
+					inputKeyFilter.isMinMax(this, this.value, true);
+					}
 		)
 	} catch(e) {
 		consoleError("Create float filter failed. " + e);

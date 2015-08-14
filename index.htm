@@ -39,7 +39,8 @@
 	You can filter the value as an integer number, a float number, or write a custom filter, such as a phone number filter.
 	<h1>Input Key Filter Test</h1>
 	Integer field: 
-	<input type="number" id="Integer" value="123"/>
+<!--	<input type="number" id="Integer" value="123"/>-->
+	<input id="Integer" value="123" min=10 max=1000 />
 	<script>
 		CreateIntFilter("Integer", function(event){//onChange event
 				inputKeyFilter.RemoveMyTooltip();
@@ -54,7 +55,7 @@
 			}
 			
 			//onblur event. Use this function if you want set focus to the input element again if input value is NaN. (empty or invalid)
-			, function(event){ inputKeyFilter.isNaN(parseInt(this.value), this); }
+			//, function(event){ inputKeyFilter.isNaN(parseInt(this.value), this); }
 		);
 	</script>
 	 New integer: <span id="NewInteger"></span>
@@ -67,6 +68,8 @@
 	<input id="Float"
 		onchange="javascript: onChangeFloat(this)"
 		onblur="inputKeyFilter.isNaN(parseFloat(this.value), this);"
+		min=5.6
+		max=0.123e2
 	/>
 	<script>
 		CreateFloatFilter("Float");
@@ -79,6 +82,9 @@
 				elementNewFloat.innerHTML = "";
 				return;
 			}
+			if(!inputKeyFilter.isMinMax(input, input.value, true))
+				return;
+
 			elementNewFloat.innerHTML = float + " or localized value: " + float.toLocaleString();
 		}
 	</script>
