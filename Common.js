@@ -25,6 +25,7 @@ var isSafari = false;
 // At least Safari 3+: "[object HTMLElementConstructor]"
 var isChrome = false;                          // Chrome 1+
 var isIE = false;                            // At least IE6
+var ieVersion = null;
 
 isOpera = !!window.opera || navigator.userAgent.indexOf('Opera') >= 0;
 // Opera 8.0+ (UA detection to detect Blink/v8-powered Opera)
@@ -37,11 +38,13 @@ if(!isOpera){
 			isChrome = !!window.chrome;                          // Chrome 1+
 			if(!isChrome){
 				isIE = window.navigator.userAgent.indexOf('MSIE ') != -1;//false;                            // At least IE6
+				
+				//https://gist.github.com/jalbertbowden/5174156
+				var ieMobile = /IEMobile\/(\d+\.?(\d+)?)/.exec( navigator.userAgent );
+				ieMobile = ( !! window.ActiveXObject && ieMobile && (ieMobile.length >= 2) && +( ieMobile[1] ) ) || NaN;
+				
 				if(!isIE){
 				
-					//https://gist.github.com/jalbertbowden/5174156
-					var ieMobile = /IEMobile\/(\d+\.?(\d+)?)/.exec( navigator.userAgent );
-					ieMobile = ( !! window.ActiveXObject && ieMobile && (ieMobile.length >= 2) && +( ieMobile[1] ) ) || NaN;
 					if(isNaN(ieMobile)){
 						var msg = "browser type not found\n\n" + window.navigator.userAgent;
 						try
@@ -53,6 +56,9 @@ if(!isOpera){
 					}
 					isIE = true;
 				}
+				if(isNaN(ieMobile))
+					 ieVersion = ( !!window.ActiveXObject && +( /msie\s(\d+)/i.exec( navigator.userAgent )[1] ) ) || NaN;
+				else ieVersion = ieMobile;
 			}
 		}
 	}
@@ -72,6 +78,7 @@ function MessageElement(Message){
 }
 
 function ErrorMessage(message, emailMe, StackTrace){
+	consoleError(message);
 	if(StackTrace != false)
 		message += '\n\n' + printStackTrace().join("nn");
 	
