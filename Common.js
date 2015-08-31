@@ -12,7 +12,7 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * 
  * Revision:
- *  2011-07-01, : 
+ *  2015-07-01, : 
  *       + localization of the float value.
  *
  */
@@ -83,16 +83,17 @@ function ErrorMessage(message, emailMe, StackTrace){
 		message += '\n\n' + printStackTrace().join("nn");
 	
 	//http://www.htmlhelp.com/reference/html40/entities/special.html
-	message = message.replace(/</g, '&lt;');
-	message = message.replace(/>/g, '&gt;');
-	
 	var body;
 	if(emailMe != false){
 		body = message;
 		body = body.replace(/\n/g, "%0D%0A");
 		body = body.replace(/ /g, "%20");
 		body = body.replace(/"/g, "%22");
+		body = body.replace(/&/g, "%26");
 	}
+	message = message.replace(/</g, '&lt;');
+	message = message.replace(/>/g, '&gt;');
+	
 	message = message.replace(/\n/g, '<BR>');
 	if(emailMe != false){
 		//http://www.rapidtables.com/web/html/mailto.htm
