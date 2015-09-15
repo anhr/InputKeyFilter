@@ -17,9 +17,11 @@
 		You can edit all scripts,
 		but my updates in the gitgub https://github.com/anhr/InputKeyFilter project is not available.
 	 -->
+	 <!--
 	<link rel="stylesheet" href="InputKeyFilter.css" type="text/css">		
-	<script type="text/javascript" src="Common.js"></script>
 	<script type="text/javascript" src="InputKeyFilter.js"></script>
+    <script type="text/javascript" src="Common.js"></script>
+	 -->
  
 	<!--
 		Get all scripts from my project in gitgub https://github.com/anhr/InputKeyFilter.
@@ -28,11 +30,9 @@
 		
 		See details in http://stackoverflow.com/questions/17341122/link-and-execute-external-javascript-file-hosted-on-github
 	 -->
-	 <!--
 	<link rel="stylesheet" href="https://rawgit.com/anhr/InputKeyFilter/master/InputKeyFilter.css" type="text/css">		
-	<script type="text/javascript" src="https://rawgit.com/anhr/InputKeyFilter/master/Common.js"></script>
 	<script type="text/javascript" src="https://rawgit.com/anhr/InputKeyFilter/master/InputKeyFilter.js"></script>
-	 -->
+	<script type="text/javascript" src="https://rawgit.com/anhr/InputKeyFilter/master/Common.js"></script>
 	
 </head>
 <body>
@@ -46,7 +46,8 @@
 		 data-ad-slot="8810450588"></ins>
 	<script>
 	(adsbygoogle = window.adsbygoogle || []).push({});
-	</script>	
+	</script>
+		
 	<p>
 		The filter of value of the text input element on your web page using JavaScript language.
 		You can filter the value as an integer number, a float number, or write a custom filter, such as a phone number filter.
@@ -317,6 +318,44 @@
 		);
 	</script>
 	 New password: <span id="NewPassword"></span>
+
+    <hr>
+    Send of not empty string:
+    <input id="string" />
+    <input type="button" value="Send" id="send" onclick="javascript: return onClickSend()" />
+    <script>
+        function onClickSend() {
+//consoleLog("onClickSend()");
+            var elementInput = document.getElementById("string");
+            var value = elementInput.value.replace(/^\s+/, "");
+            if (value == "") {
+                inputKeyFilter.TextAdd(isRussian() ?
+                        "Введите строку"
+                        : "Please type a string"
+                    , elementInput, "downarrowdivred");
+
+                elementInput.focus();
+                return false;
+            }
+            return true;
+        }
+/*
+        function onChangeFloat(input) {
+			inputKeyFilter.RemoveMyTooltip();
+			var elementNewFloat = document.getElementById("NewFloat");
+			var float = inputKeyFilter.parseFloat(input.value);
+			if(inputKeyFilter.isNaN(float, input)){
+				elementNewFloat.innerHTML = "";
+				return;
+			}
+			if(!inputKeyFilter.isMinMax(input, input.value, true))
+				return;
+
+			elementNewFloat.innerHTML = float + " or localized value: " + float.toLocaleString();
+		}
+*/
+    </script>
+    New string: <span id="NewFloat"></span>
 	 
 	<hr>
 	Have a job for me? Please read <a href='../AboutMe/' target="_blank">About Me</a>.

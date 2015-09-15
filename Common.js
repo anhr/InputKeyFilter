@@ -77,6 +77,7 @@ function MessageElement(Message){
 	}
 }
 
+var emailSubject = "Scoreboard error";
 function ErrorMessage(message, emailMe, StackTrace){
 	consoleError(message);
 	if(StackTrace != false)
@@ -99,7 +100,7 @@ function ErrorMessage(message, emailMe, StackTrace){
 		//http://www.rapidtables.com/web/html/mailto.htm
 		if(typeof myEmail == 'undefined')
 			myEmail = "anhr@mail.ru";
-		message += "<BR><BR><a href=\"mailto:" + myEmail + "?subject=Scoreboard error&body=" + body + "\">"
+		message += "<BR><BR><a href=\"mailto:" + myEmail + "?subject=" + emailSubject + "&body=" + body + "\">"
 			+ (isRussian() ?
 					"Сообщите мне о Вашей проблеме"
 					: "Email me about problem")
@@ -454,4 +455,31 @@ function getDecimalSeparator() {
 	} catch(e){}
 
 	return decSep;
+}
+
+function get_cookie ( cookie_name, defaultValue)
+{
+	//http://ruseller.com/lessons.php?rub=28&id=593
+  var results = document.cookie.match ( '(^|;) ?' + cookie_name + '=([^;]*)(;|$)' );
+ 
+  if ( results )
+    return ( unescape ( results[2] ) );
+  else
+    return defaultValue;
+}
+
+function SetCookie(name, value)
+{
+	//http://ruseller.com/lessons.php?rub=28&id=593
+	var cookie_date = new Date ( );  // Текущая дата и время
+	cookie_date.setTime ( cookie_date.getTime() + 1000 * 60 * 60 * 24 * 365);
+	document.cookie = name + "=" + value + "; expires=" + cookie_date.toGMTString();
+}
+
+function delete_cookie ( cookie_name )
+{
+	//http://ruseller.com/lessons.php?rub=28&id=593
+	var cookie_date = new Date ( );  // Текущая дата и время
+	cookie_date.setTime ( cookie_date.getTime() - 1 );
+	document.cookie = cookie_name += "=; expires=" + cookie_date.toGMTString();
 }

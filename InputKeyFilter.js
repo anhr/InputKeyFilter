@@ -159,14 +159,18 @@ var inputKeyFilter = {
 		element = document.createElement("span");
 		document.body.appendChild(element );
 		element.id = inputKeyFilter.idMyTooltip;
-		var offsetSum = getOffsetSum(elementInput);
-		//element.style.top = (offsetSum.top - elementInput.offsetHeight - element.offsetHeight) + "px";//for downarrowdiv style
-		element.style.top = (offsetSum.top + elementInput.offsetHeight + 10) + "px";//for uparrowdiv style
-		element.style.left = offsetSum.left + "px";
 		element.style.opacity = "1"; // Полупрозрачный фон. Attention!!! opacity = "0.9" is not allowed for Opera 9.5 for Windows Mobile
 		element.className = className;//"uparrowdiv";//"downarrowdiv";
 		element.innerHTML = text;
-//		if(typeof elementInput.ikf.oldValue != 'undefined')
+
+		var offsetSum = getOffsetSum(elementInput);
+		if (className.match(/(down)/) == null)
+		    element.style.top = (offsetSum.top + elementInput.offsetHeight + 10) + "px";//for uparrowdiv style
+		else
+		    element.style.top = (offsetSum.top - element.offsetHeight - 10) + "px";//for downarrowdiv style
+		element.style.left = offsetSum.left + "px";
+
+	    //		if(typeof elementInput.ikf.oldValue != 'undefined')
 			inputKeyFilter.timeout_id = setTimeout(function() { inputKeyFilter.RemoveMyTooltip() }, 3000);
 	}
 	
