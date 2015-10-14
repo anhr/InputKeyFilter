@@ -151,7 +151,7 @@ var inputKeyFilter = {
 	
 	, timeout_id: null
 	
-	, CreateTooltip: function(text, elementInput, className){
+	, CreateTooltip: function (text, elementInput, className) {
 		clearTimeout(inputKeyFilter.timeout_id);
 		var element = inputKeyFilter.getMyTooltip();
 		if(element)
@@ -163,12 +163,15 @@ var inputKeyFilter = {
 		element.className = className;//"uparrowdiv";//"downarrowdiv";
 		element.innerHTML = text;
 
-		var offsetSum = getOffsetSum(elementInput);
-		if (className.match(/(down)/) == null)
-		    element.style.top = (offsetSum.top + elementInput.offsetHeight + 10) + "px";//for uparrowdiv style
-		else
-		    element.style.top = (offsetSum.top - element.offsetHeight - 10) + "px";//for downarrowdiv style
-		element.style.left = offsetSum.left + "px";
+		if (elementInput) {
+		    var offsetSum = getOffsetSum(elementInput);
+		    if (className.match(/(down)/) == null)
+		        element.style.top = (offsetSum.top + elementInput.offsetHeight + 10) + "px";//for uparrowdiv style
+		    else
+		        element.style.top = (offsetSum.top - element.offsetHeight - 10) + "px";//for downarrowdiv style
+		    element.style.left = offsetSum.left + "px";
+		}
+		else consoleError('CreateTooltip("' + text + '", ' + elementInput + ', "' + className + '") failed. Invalid elementInput.');
 
 	    //		if(typeof elementInput.ikf.oldValue != 'undefined')
 			inputKeyFilter.timeout_id = setTimeout(function() { inputKeyFilter.RemoveMyTooltip() }, 3000);
