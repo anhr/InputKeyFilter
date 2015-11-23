@@ -85,20 +85,12 @@ var inputKeyFilter = {
 				return true;//Go to onkeyup event. For Chrome and input type="number"
 			}
 			var value = elementInput.value.substr(0,caretPos) + charCode + elementInput.value.substr(caretPos);
-//MessageElement(value + " elementInput.value: " + elementInput.value + " caretPos = " + caretPos + " oldValue: " + elementInput.ikf.oldValue);
 			elementInput.ikf.isKeypress = true;
 			if(!inputKeyFilter.filter(elementInput, value)){
 				return !inputKeyFilter.restoreValue(elementInput);
-/*			
-				if(typeof elementInput.ikf.oldValue == 'undefined')
-					return true;
-				inputKeyFilter.restoreValue(elementInput);
-				return false;
-*/				
 			}
 			if(typeof elementInput.ikf.oldValue != 'undefined')
 				elementInput.ikf.oldValue = value;
-//			inputKeyFilter.RemoveMyTooltip();
 			return true;
 		}
 		if((typeof onkeyup != 'undefined') && (onkeyup != null))
@@ -123,7 +115,6 @@ var inputKeyFilter = {
 			}
 			if(typeof elementInput.ikf.oldValue != 'undefined')
 				elementInput.ikf.oldValue = elementInput.value;
-//			inputKeyFilter.RemoveMyTooltip();
 			return true;
 		}
 		if((typeof validated != 'undefined') && (validated != null))
@@ -140,10 +131,7 @@ var inputKeyFilter = {
 			caretPos = getCaretPosition(elementInput);
 		}catch(e){//For Chrome and input type="number"
 		}
-//		if(typeof elementInput.ikf.oldValue != 'undefined'){
-			elementInput.value = elementInput.ikf.oldValue;
-//		}
-//		else elementInput.value = "";//For Android 2.3.6
+		elementInput.value = elementInput.ikf.oldValue;
 		if(caretPos)
 			setCaretPosition(elementInput, caretPos);
 		return true;
@@ -157,11 +145,11 @@ var inputKeyFilter = {
 		if(element)
 			document.body.removeChild(element);
 		element = document.createElement("span");
-		document.body.appendChild(element );
 		element.id = inputKeyFilter.idMyTooltip;
 		element.style.opacity = "1"; // Полупрозрачный фон. Attention!!! opacity = "0.9" is not allowed for Opera 9.5 for Windows Mobile
 		element.className = className;//"uparrowdiv";//"downarrowdiv";
 		element.innerHTML = text;
+		document.body.appendChild(element);
 
 		if (elementInput) {
 		    var offsetSum = getOffsetSum(elementInput);
@@ -173,8 +161,7 @@ var inputKeyFilter = {
 		}
 		else consoleError('CreateTooltip("' + text + '", ' + elementInput + ', "' + className + '") failed. Invalid elementInput.');
 
-	    //		if(typeof elementInput.ikf.oldValue != 'undefined')
-			inputKeyFilter.timeout_id = setTimeout(function() { inputKeyFilter.RemoveMyTooltip() }, 3000);
+		inputKeyFilter.timeout_id = setTimeout(function() { inputKeyFilter.RemoveMyTooltip() }, 3000);
 	}
 	
 	//http://javascript.ru/forum/dom-window/7626-vsplyvayushhaya-podskazka.html
@@ -310,25 +297,6 @@ return;//infinity loop in Opera WP
 		var element = this.getMyTooltip();
 		if(!element)
 			return;
-/*			
-		//width
-		if(typeof element.deltaWidth == 'undefined'){
-			element.offsetWidthIkf = element.offsetWidth;
-			element.deltaWidth = parseInt(element.offsetWidth / 10);
-		}
-		element.offsetWidthIkf -= element.deltaWidth;
-		element.style.width = element.offsetWidthIkf + "px";
-		
-		//height
-		if(typeof element.deltaHeight == 'undefined'){
-			element.offsetHeightIkf = element.offsetHeight;
-			element.deltaHeight = parseInt(element.offsetHeight / 10);
-		}
-		element.offsetHeightIkf -= element.deltaHeight;
-		element.style.height = element.offsetHeightIkf + "px";
-		
-consoleLog("element.offsetWidth = " + element.offsetWidth + " element.offsetHeight = " + element.offsetHeight);
-*/
 		var opacity = parseFloat(element.style.opacity) - 0.1;
 		if(opacity < 0){
 			document.body.removeChild(element);
@@ -503,13 +471,6 @@ function CreateEmailFilter(elementID, onChange, onblur){
 			, function(event){//onkeypress
 				return true;
 			}
-/*			
-			, null//onkeypress
-			//Do not filter input value if user press a key
-			, function(event){//onkeyup
-				return true;
-			}
-*/			
 			, null//onkeyup
 			, true//isNoRestoreValue
 			, true//validated

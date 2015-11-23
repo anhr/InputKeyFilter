@@ -204,7 +204,9 @@ function output(arr) {
 //Example how to use it: 
 //var params = parseQueryString();
 //alert(params["foo"]); 
-var parseQueryString = function() {
+//
+//Depricated. For example incorrect decoding from "q+%2B+4" to "q + 4". Use QueryString instead.
+var parseQueryString = function () {
 
     var str = window.location.search;
     var objURL = {};
@@ -224,7 +226,19 @@ function getOffsetSum(elem) {
     while(elem) {
         top = top + parseFloat(elem.offsetTop)
         left = left + parseFloat(elem.offsetLeft)
-        elem = elem.offsetParent       
+
+        //http://stackoverflow.com/questions/21912684/how-to-get-value-of-translatex-and-translatey
+        if (window.getComputedStyle) {
+            var style = getComputedStyle(elem),
+                transform = style.transform || style.webkitTransform || style.mozTransform;
+            var mat = transform.match(/^matrix\((.+), (.+), (.+)\)$/);///^matrix3d\((.+)\)$/);
+            if (mat) {
+                top = top + parseInt(mat[3]);
+                left = left + parseInt(mat[2]);
+            }
+        }
+
+        elem = elem.offsetParent
     }
     return {top: Math.round(top), left: Math.round(left)}
 }
@@ -311,6 +325,22 @@ function getLocale() {
 	
 	consoleError("getLocale() failed!");
 	return "";
+}
+
+//D:\My documents\MyProjects\trunk\WebFeatures\WebFeatures\SignalRChat\ckeditor\core\lang.js 
+// line 79 detect: function( defaultLanguage, probeLanguage ) {
+function getLanguageCode() {
+    var parts = getLocale().toLowerCase().match(/([a-z]+)(?:-([a-z]+))?/),
+        lang = parts[1],
+        locale = parts[2];
+    return lang;
+}
+
+function loadScript(url) {
+    var script = document.createElement('script');
+    script.setAttribute("type", 'text/javascript');
+    script.setAttribute("src", url);
+    document.getElementsByTagName("head")[0].appendChild(script);
 }
 
 function isRussian() {
