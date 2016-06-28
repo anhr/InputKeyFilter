@@ -239,18 +239,17 @@ var inputKeyFilter = {
 	, focus: function(elementInput){
 //ErrorMessage("inputKeyFilter.focus(...) inputKeyFilter.focusAgain = " + inputKeyFilter.focusAgain, false, false);// + printStackTrace().join("\n"));
 return;//infinity loop in Opera WP
+/*
 		//I use a inputKeyFilter.focusAgain variable to prevent an infinite loop to give focus to an inputKeyFilter element in IE.
 		// For testing:
 		// open IE,
 		// go to https://googledrive.com/host/0B5hS0tFSGjBZfkhKS1VobnFDTkJKR0tVamxadmlvTmItQ2pxVWR0WDZPdHZxM2hzS1J3ejQ/InputKeyFilter/ site,
 		// give focus to the empty Integer field, then click to the empty Float field.
 		if(!isIE || !inputKeyFilter.focusAgain)
-//		if(!inputKeyFilter.focusAgain)
 		{
 			//do not works in Firefox https://bugzilla.mozilla.org/show_bug.cgi?id=53579
 			elementInput.focus();
 			inputKeyFilter.focusAgain = true;
-//			setTimeout(function() { ErrorMessage("setTimeout inputKeyFilter.focusAgain = " + inputKeyFilter.focusAgain, false, false); inputKeyFilter.focusAgain = false; }, 2000);
 		}
 		else inputKeyFilter.focusAgain = false;
 	}
@@ -272,6 +271,7 @@ return;//infinity loop in Opera WP
 		this.focus(elementInput);
 		
 		return true;
+*/
 	}
 	
 	, parseFloat: function(float){
@@ -540,4 +540,90 @@ function CreatePasswordFilter(elementID, customFilter, onChange, onblur){
 	} catch(e) {
 		consoleError("Create password filter failed. " + e);
 	}
+}
+
+function CreateDateFilter(elementID, options
+    ) {
+    try {
+        if (typeof options.formatMessage == 'undefined')
+            options.formatMessage = 'Please type date %s';
+        function dateValidation(event) {
+            if (elementDate.defaultValue == event.target.value) {
+                if (typeof options.onblur == 'undefined')
+                    return;
+                if (!options.onblur(event))
+                    return;
+            }
+            var timestamp = Date.parse(event.target.value);
+            if (isNaN(timestamp) == false) {
+                if (typeof options.dateLimitMessage == 'undefined')
+                    options.dateLimitMessage = 'Please type date between "%min" and "%max"';
+                options.dateLimitMessage = options.dateLimitMessage.replace('%min', elementDate.min).replace('%max', elementDate.max);
+                if (elementDate.min != '') {
+                    if (new Date(elementDate.min).getTime() > new Date(event.target.value).getTime()) {
+                        inputKeyFilter.TextAdd(options.dateLimitMessage, elementDate);
+//                        elementDate.focus();
+                        return;
+                    }
+                }
+                if (elementDate.max != '') {
+                    if (new Date(elementDate.max).getTime() < new Date(event.target.value).getTime()) {
+                        inputKeyFilter.TextAdd(options.dateLimitMessage, elementDate);
+//                        elementDate.focus();
+                        return;
+                    }
+                }
+                if (typeof options.onblur != 'undefined')
+                    options.onblur(event);
+            } else inputKeyFilter.TextAdd(options.formatMessage.replace('%s', elementDate.defaultValue), elementDate);
+        }
+        var elementDate = document.getElementById(elementID);
+        if (typeof options.min != 'undefined')
+            elementDate.min = options.min;
+        if (typeof options.max != 'undefined')
+            elementDate.max = options.max;
+        if (elementDate.tagName.toUpperCase() != 'INPUT') {
+            consoleError('Invalid element tag name="' + elementDate.tagName + '". Use input tag"');
+        }
+        else switch (elementDate.type.toLowerCase()) {
+            case "date":
+                consoleLog("Your browser supports date input");
+                elementDate.onblur = function (event) {
+                    consoleLog("elementDate.onblur()");
+                    dateValidation(event);
+                }
+                break;
+            case "text":
+                consoleLog("Your browser doesn't support date input");
+                elementDate.type = 'text';
+                elementDate.value = 'YYYY-MM-DD';//'mm/dd/yyyy';
+                elementDate.defaultValue = elementDate.value;
+                inputKeyFilter.Create(elementID
+                    , null//onChange event
+                    , function (elementInput, value) {//customFilter
+                        var arrayDate = value.match(/^([\dy]*)-([\dm]*)-([\dd]*)$/i);
+                        if (arrayDate) {
+                            /*
+                            var arrayString = '';
+                            for (var i = 1; i < arrayDate.length; i++) {
+                                arrayString += arrayDate[i] + '-';
+                            }
+                            consoleLog("elementDate.customFilter() value: " + value + ' arrayString: ' + arrayString);
+                            */
+                            return true;
+                        }
+                        inputKeyFilter.TextAdd(options.formatMessage.replace('%s', elementInput.defaultValue), elementInput);
+                        return false;
+                    }
+                    , function (event) {//onblur event
+                        consoleLog("elementDate.onblur()");
+                        dateValidation(event);
+                    }
+                );
+                break;
+            default: consoleError('Invalid input type="' + elementDate.type + '". Use type="date"');
+        }
+    } catch (e) {
+        consoleError("Create date filter failed. " + e);
+    }
 }

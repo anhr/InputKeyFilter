@@ -114,8 +114,8 @@ function ErrorMessage(message, emailMe, StackTrace){
 
 function consoleLog(message){
 	try{
-		console.log(message);//Do not works in WP
-    } catch(e) {
+	    console.log(getPerformance(message));//Do not works in WP
+    } catch (e) {
     }
 }
 
@@ -123,10 +123,20 @@ function consoleError(msg)
 {
 	try
 	{
-		console.error(msg);
+	    console.error(getPerformance(msg));
     } catch(e) {
 //		alert(msg);
     }
+}
+
+function getPerformance(text)
+{
+    if (window.performance) {
+        var now = (window.performance.now() / 1000).toFixed(3);
+        text = now + ': ' + text;
+    }
+    //$.connection.chatHub.server.consoleLog(text);
+    return text;
 }
 
 function getTagData (tag) {
@@ -231,10 +241,12 @@ function getOffsetSum(elem) {
         if (window.getComputedStyle) {
             var style = getComputedStyle(elem),
                 transform = style.transform || style.webkitTransform || style.mozTransform;
-            var mat = transform.match(/^matrix\((.+), (.+), (.+)\)$/);///^matrix3d\((.+)\)$/);
-            if (mat) {
-                top = top + parseInt(mat[3]);
-                left = left + parseInt(mat[2]);
+            if (typeof transform != 'undefined') {//do not support in IE 11
+                var mat = transform.match(/^matrix\((.+), (.+), (.+)\)$/);///^matrix3d\((.+)\)$/);
+                if (mat) {
+                    top = top + parseInt(mat[3]);
+                    left = left + parseInt(mat[2]);
+                }
             }
         }
 
@@ -306,7 +318,11 @@ function getLocale() {
 		return "";
 	}
 	
-	if((typeof navigator.languages != 'undefined') && (navigator.languages.length > 0))
+	if (
+        (typeof navigator.languages != 'undefined')
+        && (typeof navigator.languages != 'unknown')//for IE6
+        && (navigator.languages.length > 0)
+        )
 		return navigator.languages[0];//Chrome
 		
 	//IE
@@ -335,12 +351,72 @@ function getLanguageCode() {
         locale = parts[2];
     return lang;
 }
-
+/*
 function loadScript(url) {
     var script = document.createElement('script');
     script.setAttribute("type", 'text/javascript');
     script.setAttribute("src", url);
     document.getElementsByTagName("head")[0].appendChild(script);
+}
+*/
+//http://javascript.ru/forum/events/21439-dinamicheskaya-zagruzka-skriptov.html
+//https://learn.javascript.ru/onload-onerror
+var loadScript = function (src, onload, onerror, appendTo) {
+    if (!appendTo) {
+        appendTo = document.getElementsByTagName('head')[0];
+    }
+    var script = appendTo.querySelector('script[id="' + src + '"]');
+    if (script) {
+        if (onload)
+            setTimeout(function () { onload() }, 100);//Если не сделать эту задержку, то при открыити локальной веб камеры иногда не успевает скачиваться app.js и появляется ошибка addMedia.js:6 Uncaught ReferenceError: App is not defined
+        return;
+    }
+
+    script = document.createElement('script');
+    script.setAttribute("type", 'text/javascript');
+    script.setAttribute("id", src);
+
+    if (onload) {
+        if (script.readyState && !script.onload) {
+            // IE, Opera
+            script.onreadystatechange = function () {
+//                alert('script.readyState: ' + script.readyState);
+/*
+                                if (script.readyState == "loaded" || script.readyState == "complete") {
+                    script.onreadystatechange = null;
+                    onload();
+                }
+*/
+                if (script.readyState == "complete") { // на случай пропуска loaded
+                    onload(); // (2)
+                }
+
+                if (script.readyState == "loaded") {
+                    setTimeout(onload, 0);  // (1)
+
+                    // убираем обработчик, чтобы не сработал на complete
+                    this.onreadystatechange = null;
+                }
+            }
+        }
+        else {
+            // Rest
+            function _onload() {
+                consoleLog('loadScript.onload() ' + this.src);
+                onload();
+            }
+            script.onload = _onload;
+
+            if (onerror)
+                script.onerror = onerror;
+            else script.onerror = function () {
+                consoleError('loadScript: "' + this.src + '" failed');
+            };
+        }
+    }
+
+    script.src = src;
+    appendTo.appendChild(script);
 }
 
 function isRussian() {
@@ -579,4 +655,38 @@ function delete_cookie ( cookie_name )
 	var cookie_date = new Date ( );  // Текущая дата и время
 	cookie_date.setTime ( cookie_date.getTime() - 1 );
 	document.cookie = cookie_name += "=; expires=" + cookie_date.toGMTString();
+}
+
+function getElementByClassName(parentElement, className) {
+    for (var i = 0; i < parentElement.childNodes.length; i++){
+        var childElement = parentElement.childNodes[i];
+        if (childElement.className) {
+            var arrayClassNames = childElement.className.split(' ');
+            for (var j = 0; j < arrayClassNames.length; j++) {
+                if (arrayClassNames[j] == className) {
+                    return childElement;
+                }
+            }
+        }
+    }
+    return null;
+}
+
+function displayDuration(startTime, elementDuration, suffix) {
+    var dateCur = new Date();
+    var time = dateCur.getTime() - startTime;
+    var timezoneOffset = dateCur.getTimezoneOffset() * 60000;
+    var date = new Date(time + timezoneOffset);
+    //consoleLog('displayDuration() startTime = ' + startTime + ' time = ' + time + ' timezoneOffset = ' + timezoneOffset + ' date = ' + date + ' dateCur = ' + dateCur);
+    var year = date.getFullYear();//нужно анализировать для случая Time Zone < 0 (Американское время)
+    if (year == 1969)
+        var date = new Date(time + timezoneOffset + 1000 * 60 * 60);
+    else if ((year == 1970) && (date.getHours() == 1))
+        var date = new Date(time + timezoneOffset - 1000 * 60 * 60);
+    var hour = date.getHours();
+    var minute = date.getMinutes();
+    var seconds = date.getSeconds();
+    if (typeof suffix == 'undefined')
+        suffix = '';
+    elementDuration.innerText = ((hour == 0) ? '' : (hour + ':')) + minute + ':' + ((seconds < 10) ? '0' : '') + seconds + suffix;
 }

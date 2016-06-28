@@ -339,24 +339,28 @@
             }
             return true;
         }
-/*
-        function onChangeFloat(input) {
-			inputKeyFilter.RemoveMyTooltip();
-			var elementNewFloat = document.getElementById("NewFloat");
-			var float = inputKeyFilter.parseFloat(input.value);
-			if(inputKeyFilter.isNaN(float, input)){
-				elementNewFloat.innerHTML = "";
-				return;
-			}
-			if(!inputKeyFilter.isMinMax(input, input.value, true))
-				return;
-
-			elementNewFloat.innerHTML = float + " or localized value: " + float.toLocaleString();
-		}
-*/
     </script>
     New string: <span id="NewFloat"></span>
 	 
+    <hr>
+    Date:
+    <input type='date' id='date' />
+    New date: <span id="NewDate"></span>
+    <script>
+        CreateDateFilter('date', {
+                formatMessage: 'Please type date %s'
+                , onblur: function (event) {
+                    if (event.target.value == event.target.defaultValue)
+                        return;
+                    document.getElementById('NewDate').innerHTML = event.target.value;
+                }
+                , min: new Date((new Date().getFullYear() - 10).toString()).toISOString().match(/^(.*)T.*$/i)[1]//'1999-01-01'//10 years ago
+                , max: new Date().toISOString().match(/^(.*)T.*$/i)[1]//"2016-06-27" //Current date
+                , dateLimitMessage: 'Please type date between "%min" and "%max"'
+            }
+        );
+    </script>
+
 	<hr>
 	Have a job for me? Please read <a href='../AboutMe/' target="_blank">About Me</a>.
 </body>
