@@ -542,8 +542,7 @@ function CreatePasswordFilter(elementID, customFilter, onChange, onblur){
 	}
 }
 
-function CreateDateFilter(elementID, options
-    ) {
+function CreateDateFilter(elementID, options) {
     try {
         if (typeof options.formatMessage == 'undefined')
             options.formatMessage = 'Please type date %s';
@@ -582,10 +581,7 @@ function CreateDateFilter(elementID, options
             elementDate.min = options.min;
         if (typeof options.max != 'undefined')
             elementDate.max = options.max;
-        if (elementDate.tagName.toUpperCase() != 'INPUT') {
-            consoleError('Invalid element tag name="' + elementDate.tagName + '". Use input tag"');
-        }
-        else switch (elementDate.type.toLowerCase()) {
+        switch (elementDate.type.toLowerCase()) {
             case "date":
                 consoleLog("Your browser supports date input");
                 elementDate.onblur = function (event) {
@@ -625,5 +621,54 @@ function CreateDateFilter(elementID, options
         }
     } catch (e) {
         consoleError("Create date filter failed. " + e);
+    }
+}
+
+function CreateMaxLengthFilter(elementID, options) {
+    try {
+
+        if (typeof options.formatMessage == 'undefined')
+            options.formatMessage = 'Length limit to %s sumbols';
+        var elementInput = document.getElementById(elementID);
+        if (elementInput.type.toLowerCase() != "text") {
+            consoleError('elementInput.type: ' + elementInput.type);
+            return;
+        }
+        if (elementInput.maxLength == -1) {
+            consoleError('elementInput.maxLength = ' + elementInput.maxLength);
+            return;
+        }
+        elementInput.validation = function () {
+            if (!inputKeyFilter.validate(elementInput))
+                return false;
+            if (elementInput.value.length >= elementInput.maxLength) {
+                inputKeyFilter.TextAdd(options.formatMessage.replace('%s', elementInput.maxLength), elementInput);
+                return false;
+            }
+            return true;
+        }
+        inputKeyFilter.Create(elementID
+            , null//onChange event
+            , function (elementInput, value) {//customFilter
+                //consoleLog("customFilter");
+            }
+            , function (event) {//onblur event
+                //consoleLog("element.onblur()");
+                if (!this.validation() && options.onerror) {
+                    options.onerror(this);
+                    return;
+                }
+                if (options.onblur)
+                    options.onblur(event);
+            }
+            , null//onkeypress
+            , function (event) {//onkeyup event
+                //consoleLog("element.onkeyup()");
+                this.validation();
+            }
+            , true//isNoRestoreValue
+        );
+    } catch (e) {
+        consoleError("Create max length filter failed. " + e);
     }
 }

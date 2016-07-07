@@ -361,6 +361,22 @@
         );
     </script>
 
+    <hr>
+    Max Length: String length is limited to 10 sumbols
+    <input type='text' id='maxLength' maxlength ="11" />
+    New string: <span id="newString"></span>
+    <script>
+        CreateMaxLengthFilter('maxLength', {
+            formatMessage: 'Length limit to %s sumbols'
+            , onerror: function (elementInput) {
+                elementInput.focus();//except Firefox
+            }
+            , onblur: function (event) {
+                document.getElementById('newString').innerHTML = event.target.value;
+            }
+        });
+    </script>
+
 	<hr>
 	Have a job for me? Please read <a href='../AboutMe/' target="_blank">About Me</a>.
 </body>

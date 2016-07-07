@@ -646,7 +646,31 @@ function SetCookie(name, value)
 	//http://ruseller.com/lessons.php?rub=28&id=593
 	var cookie_date = new Date ( );  // Текущая дата и время
 	cookie_date.setTime ( cookie_date.getTime() + 1000 * 60 * 60 * 24 * 365);
-	document.cookie = name + "=" + value + "; expires=" + cookie_date.toGMTString();
+	var length = 0, lengthMin = 0, oldValue;
+	while((length == 0) || (length != lengthMin)){
+	    document.cookie = name + "=" + value + "; expires=" + cookie_date.toGMTString();
+	    var cookieLimit = get_cookie(name, '').length;
+	    if (cookieLimit != value.length) {
+	        oldValue = value;
+	        length = parseInt((lengthMin + value.length) / 2);
+	        value = value.substring(0,length);
+	        //consoleError('Cookie Limit 1 = ' + value.length);
+	        continue;
+	    }
+	    if(length != 0){
+	        length = parseInt(length + (oldValue.length - value.length) / 2);
+	        lengthMin = value.length;
+	        value = oldValue.substring(0, length);
+	        //consoleError('Cookie Limit 2 = ' + value.length);
+	        continue;
+        }
+	    break;
+	}
+	if(length != 0){
+	    consoleError('Cookie Limit = ' + value.length);
+	    delete_cookie (name);
+	}
+	return length;
 }
 
 function delete_cookie ( cookie_name )
@@ -689,4 +713,38 @@ function displayDuration(startTime, elementDuration, suffix) {
     if (typeof suffix == 'undefined')
         suffix = '';
     elementDuration.innerText = ((hour == 0) ? '' : (hour + ':')) + minute + ':' + ((seconds < 10) ? '0' : '') + seconds + suffix;
+}
+
+function isBranchExpanded(informer) {
+    return informer.className.indexOf(' expanded') != -1;
+}
+
+function onbranchelement(informer, branchId, expand, maxHeight) {
+    var branch = document.getElementById(branchId);
+    var expanded = ' expanded';
+    if(informer.className.indexOf('b-toggle') == -1)
+        consoleError('informer.className: ' + informer.className);
+    if(!isBranchExpanded(informer))
+    {
+        if((expand != null) && (expand == false))
+            return;//do not expand
+        if(typeof maxHeight == 'undefined')
+            maxHeight = window.screen.height + "px";
+        informer.style.maxHeight = maxHeight;
+        informer.className += expanded;
+        if(branch)
+            branch.innerHTML = "▼"<!-- http://htmlbook.ru/samhtml/tekst/spetssimvoly http://unicode-table.com/ru/#box-drawing -->
+        return false;
+    }
+    if((expand != null) && (expand == true))
+        return;//do not close
+    informer.style.maxHeight = "0px";
+    informer.className = informer.className.replace(expanded, '');
+    if(branch)
+        branch.innerHTML = "▶"<!-- http://htmlbook.ru/samhtml/tekst/spetssimvoly http://unicode-table.com/ru/#box-drawing -->
+    return false;
+};
+
+function onbranch(informerId, branchId, expand, maxHeight) {
+    onbranchelement(document.getElementById(informerId), branchId, expand, maxHeight);
 }
