@@ -642,7 +642,7 @@ function CreateMaxLengthFilter(elementID, options) {
             if (!inputKeyFilter.validate(elementInput))
                 return false;
             if (elementInput.value.length >= elementInput.maxLength) {
-                inputKeyFilter.TextAdd(options.formatMessage.replace('%s', elementInput.maxLength), elementInput);
+                inputKeyFilter.TextAdd(options.formatMessage.replace('%s', elementInput.maxLength - 1), elementInput);
                 return false;
             }
             return true;
