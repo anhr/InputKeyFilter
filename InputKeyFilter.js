@@ -553,7 +553,9 @@ function CreateDateFilter(elementID, options) {
                 if (!options.onblur(event))
                     return;
             }
-            var timestamp = Date.parse(event.target.value);
+            var timestamp = Date.parse(event.target.value
+                   + 'T00:00:00Z'//for Safari
+                );
             if (isNaN(timestamp) == false) {
                 if (typeof options.dateLimitMessage == 'undefined')
                     options.dateLimitMessage = 'Please type date between "%min" and "%max"';

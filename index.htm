@@ -354,7 +354,9 @@
                         return;
                     document.getElementById('NewDate').innerHTML = event.target.value;
                 }
-                , min: new Date((new Date().getFullYear() - 10).toString()).toISOString().match(/^(.*)T.*$/i)[1]//'1999-01-01'//10 years ago
+                , min: new Date(((new Date().getFullYear() - 10)
+                        + '-01-01T00:00:00Z')//for Safari
+                    .toString()).toISOString().match(/^(.*)T.*$/i)[1]//'1999-01-01'//10 years ago
                 , max: new Date().toISOString().match(/^(.*)T.*$/i)[1]//"2016-06-27" //Current date
                 , dateLimitMessage: 'Please type date between "%min" and "%max"'
             }
