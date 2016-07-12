@@ -546,36 +546,60 @@ function CreateDateFilter(elementID, options) {
     try {
         if (typeof options.formatMessage == 'undefined')
             options.formatMessage = 'Please type date %s';
+
+        if (typeof options.dateLimitMessage == 'undefined')
+            options.dateLimitMessage = 'Please type date between "%min" and "%max"';
+        var min, max;
+        if (options.min)
+            min = options.min;
+        else min = '';
+        if (options.max)
+            max = options.max;
+        else max = '';
+        options.dateLimitMessage = options.dateLimitMessage.replace('%min', min).replace('%max', max);
+
         function dateValidation(event) {
-            if (elementDate.defaultValue == event.target.value) {
+            if (!event) event = window.event;//for IE6
+            var target = event.target || event.srcElement;
+            if (elementDate.defaultValue == target.value) {
                 if (typeof options.onblur == 'undefined')
                     return;
                 if (!options.onblur(event))
                     return;
             }
-            var timestamp = Date.parse(event.target.value
+
+            //for compatibility with IE6
+            var arrayDate = target.value.match(/^([\d]*)-([\d]*)-([\d]*)$/);
+            if (!arrayDate || (arrayDate.length != 4)) {
+                //consoleError('Invalid date: ' + target.value);
+                inputKeyFilter.TextAdd(options.dateLimitMessage, elementDate);
+                return;
+            }
+            var timestamp = new Date(
+                arrayDate[1]//year
+                , arrayDate[2]//month
+                , arrayDate[3]//date
+            ).valueOf();
+            /*not compatible with IE6
+            var timestamp = Date.parse(target.value
                    + 'T00:00:00Z'//for Safari
                 );
+            */
             if (isNaN(timestamp) == false) {
-                if (typeof options.dateLimitMessage == 'undefined')
-                    options.dateLimitMessage = 'Please type date between "%min" and "%max"';
-                options.dateLimitMessage = options.dateLimitMessage.replace('%min', elementDate.min).replace('%max', elementDate.max);
                 if (elementDate.min != '') {
-                    if (new Date(elementDate.min).getTime() > new Date(event.target.value).getTime()) {
+                    if (new Date(elementDate.min).getTime() > new Date(target.value).getTime()) {
                         inputKeyFilter.TextAdd(options.dateLimitMessage, elementDate);
-//                        elementDate.focus();
                         return;
                     }
                 }
                 if (elementDate.max != '') {
-                    if (new Date(elementDate.max).getTime() < new Date(event.target.value).getTime()) {
+                    if (new Date(elementDate.max).getTime() < new Date(target.value).getTime()) {
                         inputKeyFilter.TextAdd(options.dateLimitMessage, elementDate);
-//                        elementDate.focus();
                         return;
                     }
                 }
                 if (typeof options.onblur != 'undefined')
-                    options.onblur(event);
+                    options.onblur(target);
             } else inputKeyFilter.TextAdd(options.formatMessage.replace('%s', elementDate.defaultValue), elementDate);
         }
         var elementDate = document.getElementById(elementID);

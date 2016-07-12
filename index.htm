@@ -347,20 +347,24 @@
     <input type='date' id='date' />
     New date: <span id="NewDate"></span>
     <script>
-        CreateDateFilter('date', {
-                formatMessage: 'Please type date %s'
-                , onblur: function (event) {
-                    if (event.target.value == event.target.defaultValue)
+        var options = {
+            formatMessage: 'Please type date %s'
+                , onblur: function (target) {
+                    if (target.value == target.defaultValue)
                         return;
-                    document.getElementById('NewDate').innerHTML = event.target.value;
+                    document.getElementById('NewDate').innerHTML = target.value;
                 }
-                , min: new Date(((new Date().getFullYear() - 10)
-                        + '-01-01T00:00:00Z')//for Safari
-                    .toString()).toISOString().match(/^(.*)T.*$/i)[1]//'1999-01-01'//10 years ago
-                , max: new Date().toISOString().match(/^(.*)T.*$/i)[1]//"2016-06-27" //Current date
                 , dateLimitMessage: 'Please type date between "%min" and "%max"'
-            }
-        );
+        }
+        try {//for compatibility with IE6
+            var min = new Date(((new Date().getFullYear() - 10)
+                        + '-01-01T00:00:00Z')//for Safari
+                    .toString()).toISOString().match(/^(.*)T.*$/i)[1];//'1999-01-01'//10 years ago
+            options.min = min;
+            var max = new Date().toISOString().match(/^(.*)T.*$/i)[1];//"2016-06-27" //Current date
+            options.max = max;
+        } catch (e) { }
+        CreateDateFilter('date', options);
     </script>
 
     <hr>

@@ -133,6 +133,7 @@ function getPerformance(text)
 {
     if (window.performance) {
         var now = (window.performance.now() / 1000).toFixed(3);
+//        var now = g_user.nickname;//for LJ TV Chrome browser
         text = now + ': ' + text;
     }
     //$.connection.chatHub.server.consoleLog(text);
@@ -365,11 +366,21 @@ var loadScript = function (src, onload, onerror, appendTo) {
     if (!appendTo) {
         appendTo = document.getElementsByTagName('head')[0];
     }
+    /*//not support in IE6
     var script = appendTo.querySelector('script[id="' + src + '"]');
     if (script) {
         if (onload)
             setTimeout(function () { onload() }, 100);//Если не сделать эту задержку, то при открыити локальной веб камеры иногда не успевает скачиваться app.js и появляется ошибка addMedia.js:6 Uncaught ReferenceError: App is not defined
         return;
+    }
+    */
+    for(i in appendTo.childNodes){
+        var child = appendTo.childNodes[i];
+        if((child.tagName == 'SCRIPT') && (child.id == src)){
+            if (onload)
+                setTimeout(function () { onload() }, 100);//Если не сделать эту задержку, то при открыити локальной веб камеры иногда не успевает скачиваться app.js и появляется ошибка addMedia.js:6 Uncaught ReferenceError: App is not defined
+            return;
+        }
     }
 
     script = document.createElement('script');
