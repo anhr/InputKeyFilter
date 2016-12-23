@@ -2,7 +2,6 @@
  * A Javascript object of the cross-browser filter of value of the text input element on your web page using JavaScript language. You can filter the value as an integer number, a float number etc. , or write a custom filter, such as a phone number filter.
  * Author: Andrej Hristoliubov
  * email: anhr@mail.ru
- * About me: https://googledrive.com/host/0B5hS0tFSGjBZfkhKS1VobnFDTkJKR0tVamxadmlvTmItQ2pxVWR0WDZPdHZxM2hzS1J3ejQ/AboutMe/
  * source: https://github.com/anhr/InputKeyFilter
  * Licences: GPL, The MIT License (MIT)
  * Copyright: (c) 2015 Andrej Hristoliubov
@@ -252,6 +251,7 @@ return;//infinity loop in Opera WP
 			inputKeyFilter.focusAgain = true;
 		}
 		else inputKeyFilter.focusAgain = false;
+*/
 	}
 
 	// Set focus to the input element again if input value is NaN.
@@ -271,7 +271,6 @@ return;//infinity loop in Opera WP
 		this.focus(elementInput);
 		
 		return true;
-*/
 	}
 	
 	, parseFloat: function(float){
