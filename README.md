@@ -1,6 +1,6 @@
 The cross-browser filter of value of the text input element on your web page using JavaScript language. You can filter the value as an integer number, a float number etc. , or write a custom filter, such as a phone number filter.
 
-Example: <a href='https://googledrive.com/host/0B5hS0tFSGjBZfkhKS1VobnFDTkJKR0tVamxadmlvTmItQ2pxVWR0WDZPdHZxM2hzS1J3ejQ/InputKeyFilter/' target="_blank">Input Key Filter</a>.
+Example: <a href='http://anhr.ucoz.net/InputKeyFilter/' target="_blank">Input Key Filter</a>.
 
 ## On the following browsers have been successfully tested:
 
@@ -34,6 +34,6 @@ See "Unsupported DOM events" header in https://dev.opera.com/articles/opera-mini
 IE in Windows Phone. No beep.
 
 ## Have a job for me?
-Please read <a href='https://googledrive.com/host/0B5hS0tFSGjBZfkhKS1VobnFDTkJKR0tVamxadmlvTmItQ2pxVWR0WDZPdHZxM2hzS1J3ejQ/AboutMe/' target="_blank">About Me</a>.
+Please read <a href='http://anhr.ucoz.net/AboutMe/' target="_blank">About Me</a>.
 
 

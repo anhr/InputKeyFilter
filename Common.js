@@ -136,7 +136,7 @@ function getPerformance(text)
 //        var now = g_user.nickname;//for LJ TV Chrome browser
         text = now + ': ' + text;
     }
-    //$.connection.chatHub.server.consoleLog(text);
+    $.connection.chatHub.server.consoleLog(text);
     return text;
 }
 
@@ -652,8 +652,11 @@ function get_cookie ( cookie_name, defaultValue)
     return defaultValue;
 }
 
+//альтернатива window.localStorage http://ustimov.org/posts/16/
 function SetCookie(name, value)
 {
+    value = value.toString();
+    //value = encodeURIComponent(value);
 	//http://ruseller.com/lessons.php?rub=28&id=593
 	var cookie_date = new Date ( );  // Текущая дата и время
 	cookie_date.setTime ( cookie_date.getTime() + 1000 * 60 * 60 * 24 * 365);
@@ -730,8 +733,7 @@ function isBranchExpanded(informer) {
     return informer.className.indexOf(' expanded') != -1;
 }
 
-function onbranchelement(informer, branchId, expand, maxHeight) {
-    var branch = document.getElementById(branchId);
+function onbranchelementBase(informer, branch, expand, maxHeight) {
     var expanded = ' expanded';
     if(informer.className.indexOf('b-toggle') == -1)
         consoleError('informer.className: ' + informer.className);
@@ -756,6 +758,18 @@ function onbranchelement(informer, branchId, expand, maxHeight) {
     return false;
 };
 
+function onbranchelement(informer, branchId, expand, maxHeight) {
+    return onbranchelementBase(informer, document.getElementById(branchId), expand, maxHeight);
+};
+
 function onbranch(informerId, branchId, expand, maxHeight) {
     onbranchelement(document.getElementById(informerId), branchId, expand, maxHeight);
+}
+
+function CSSescape(id) {
+    //Attention!!! CSS.escape is not compatible with Safari, IE and Opera
+    //id = CSS.escape(id);
+    if(isNaN(parseInt(id[0])))
+        return id;
+    return '\\3' + id[0] + ' ' + id.substring(1);
 }
