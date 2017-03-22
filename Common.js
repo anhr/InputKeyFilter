@@ -2,8 +2,8 @@
  * Common Javascript code. I use it in my different projects
  * Author: Andrej Hristoliubov
  * email: anhr@mail.ru
- * About me: https://googledrive.com/host/0B5hS0tFSGjBZfkhKS1VobnFDTkJKR0tVamxadmlvTmItQ2pxVWR0WDZPdHZxM2hzS1J3ejQ/AboutMe/
- * source: https://github.com/anhr/InputKeyFilter https://github.com/anhr/ColorSelector
+ * About me: http://anhr.ucoz.net/AboutMe/
+ * source: https://github.com/anhr/WebFeatures
  * Licences: GPL, The MIT License (MIT)
  * Copyright: (c) 2015 Andrej Hristoliubov
  *
@@ -112,32 +112,92 @@ function ErrorMessage(message, emailMe, StackTrace){
 	MessageElement('<FONT style="color: red; background-color: white">ERROR: ' + message + '</FONT>');
 }
 
-function consoleLog(message){
-	try{
-	    console.log(getPerformance(message));//Do not works in WP
-    } catch (e) {
-    }
-}
-
-function consoleError(msg)
+function getPerformance(text, callback)
 {
-	try
-	{
-	    console.error(getPerformance(msg));
-    } catch(e) {
-//		alert(msg);
+    /*
+    var elementMessage = document.getElementById('Message');
+    if(elementMessage != null){
+        elementMessage.innerHTML = text;
+        elementMessage.style.display = "block";
     }
-}
-
-function getPerformance(text)
-{
+    */
     if (window.performance) {
-        var now = (window.performance.now() / 1000).toFixed(3);
-//        var now = g_user.nickname;//for LJ TV Chrome browser
+        var now = '';
+        if (typeof window.performance.now != 'undefined')//for ie 9
+            now = (window.performance.now() / 1000).toFixed(3);
+        if (typeof g_user != 'undefined')
+            now += ' ' + g_user.nickname;//for LJ TV Chrome browser
         text = now + ': ' + text;
     }
-    $.connection.chatHub.server.consoleLog(text);
+    if (
+        (typeof $ != 'undefined')
+        && (typeof $.connection != 'undefined')
+        && (typeof $.connection.chatHub != 'undefined')
+        && (typeof $.connection.chatHub.server != 'undefined')
+        && ($.connection.chatHub.connection.state == 1)//signalR.connectionState.connected = 1. SignalR: Connection must be started before data can be sent. Call .start() before .send()
+        )
+        callback(text, true//Send to clients
+            , typeof g_chatRoom == 'undefined' ? '' : g_chatRoom.RoomName);
     return text;
+}
+
+function consoleLog(){
+    arguments[0] = getPerformance(arguments[0], function(text, boSendToClients, roomName){
+        if(roomName == '')
+            roomName = 'Chat';//for Chat web page
+        $.connection.chatHub.server.consoleLog(text, boSendToClients, roomName);
+    });
+    try{
+        console.log.apply(null, arguments);
+    } catch (e) {
+        try{
+            console.log(arguments[0]);
+        } catch (e) {//Do not works in WP
+            console.error(e.message);
+        }
+    }
+}
+function consoleError(){
+    arguments[0] = getPerformance(arguments[0], function(text, boSendToClients, roomName){
+        $.connection.chatHub.server.consoleError(text, boSendToClients, roomName);
+    });
+    try{
+        console.error.apply(null, arguments);
+    } catch (e) {
+        try{
+            console.error(arguments[0]);
+        } catch (e) {//Do not works in WP
+            console.error(e.message);
+        }
+    }
+}
+function consoleWarn(){
+    arguments[0] = getPerformance(arguments[0], function(text, boSendToClients, roomName){
+        $.connection.chatHub.server.consoleWarn(text, boSendToClients, roomName);
+    });
+    try{
+        console.warn.apply(null, arguments);
+    } catch (e) {
+        try{
+            console.warn(arguments[0]);
+        } catch (e) {//Do not works in WP
+            console.error(e.message);
+        }
+    }
+}
+function consoleDebug(){
+    arguments[0] = getPerformance(arguments[0], function(text, boSendToClients, roomName){
+        $.connection.chatHub.server.consoleDebug(text, boSendToClients, roomName);
+    });
+    try{
+        console.debug.apply(null, arguments);
+    } catch (e) {
+        try{
+            console.debug(arguments[0]);
+        } catch (e) {//Do not works in WP
+            console.error(e.message);
+        }
+    }
 }
 
 function getTagData (tag) {
@@ -233,6 +293,18 @@ var parseQueryString = function () {
 
 //http://javascript.ru/ui/offset
 function getOffsetSum(elem) {
+    if (elem.getBoundingClientRect) {
+        var box = elem.getBoundingClientRect()
+        var body = document.body
+        var docElem = document.documentElement
+        var scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop
+        var scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft
+        var clientTop = docElem.clientTop || body.clientTop || 0
+        var clientLeft = docElem.clientLeft || body.clientLeft || 0
+        var top  = box.top +  scrollTop - clientTop
+        var left = box.left + scrollLeft - clientLeft
+        return { top: Math.round(top), left: Math.round(left) }
+    }
     var top=0, left=0
     while(elem) {
         top = top + parseFloat(elem.offsetTop)
@@ -643,32 +715,56 @@ function getDecimalSeparator() {
 
 function get_cookie ( cookie_name, defaultValue)
 {
-	//http://ruseller.com/lessons.php?rub=28&id=593
-  var results = document.cookie.match ( '(^|;) ?' + cookie_name + '=([^;]*)(;|$)' );
+    if(!navigator.cookieEnabled){
+        consoleError('navigator.cookieEnabled = ' + navigator.cookieEnabled);
+        //Enable cookie
+        //Chrome: Settings/Show advanced settings.../Privacy/Content settings.../Cookies/Allow local data to be set
+        return;
+    }
+    //http://ruseller.com/lessons.php?rub=28&id=593
+    var results = document.cookie.match ( '(^|;) ?' + cookie_name + '=([^;]*)(;|$)' );
  
-  if ( results )
-    return ( unescape ( results[2] ) );
-  else
+    if ( results )
+        return ( unescape ( results[2] ) );
+    if (typeof defaultValue == 'undefined')
+        return '';
     return defaultValue;
 }
 
 //альтернатива window.localStorage http://ustimov.org/posts/16/
-function SetCookie(name, value)
+function SetCookie(name, value, settings)
 {
+    if(!navigator.cookieEnabled){
+        consoleError('navigator.cookieEnabled = ' + navigator.cookieEnabled);
+        //Enable cookie
+        //Chrome: Settings/Show advanced settings.../Privacy/Content settings.../Cookies/Allow local data to be set
+        return;
+    }
+    //cookie доступно со всех страниц сайта. https://learn.javascript.ru/cookie
+    //settings = '; path=/'
+
     value = value.toString();
     //value = encodeURIComponent(value);
 	//http://ruseller.com/lessons.php?rub=28&id=593
 	var cookie_date = new Date ( );  // Текущая дата и время
 	cookie_date.setTime ( cookie_date.getTime() + 1000 * 60 * 60 * 24 * 365);
+	document.cookie = name + "=" + value + ((typeof settings == 'undefined') ? '' : settings) + "; expires=" + cookie_date.toGMTString();
+	return 0;
+/*не работает SetCookie("User", userJSON, '; path=/') если в в любое текстовое поле посетителя добавить пробел
 	var length = 0, lengthMin = 0, oldValue;
 	while((length == 0) || (length != lengthMin)){
-	    document.cookie = name + "=" + value + "; expires=" + cookie_date.toGMTString();
+	    //document.cookie = name + "=" + value + "; expires=" + cookie_date.toGMTString();
+	    document.cookie = name + "=" + value + ((typeof settings == 'undefined') ? '' : settings) + "; expires=" + cookie_date.toGMTString();
 	    var cookieLimit = get_cookie(name, '').length;
 	    if (cookieLimit != value.length) {
 	        oldValue = value;
 	        length = parseInt((lengthMin + value.length) / 2);
 	        value = value.substring(0,length);
 	        //consoleError('Cookie Limit 1 = ' + value.length);
+	        if(value.length == 0){
+	            consoleError('value.length = ' + value.length);
+	            return;
+	        }
 	        continue;
 	    }
 	    if(length != 0){
@@ -685,6 +781,7 @@ function SetCookie(name, value)
 	    delete_cookie (name);
 	}
 	return length;
+*/
 }
 
 function delete_cookie ( cookie_name )
@@ -712,15 +809,15 @@ function getElementByClassName(parentElement, className) {
 
 function displayDuration(startTime, elementDuration, suffix) {
     var dateCur = new Date();
-    var time = dateCur.getTime() - startTime;
+    elementDuration.time = dateCur.getTime() - startTime;
     var timezoneOffset = dateCur.getTimezoneOffset() * 60000;
-    var date = new Date(time + timezoneOffset);
+    var date = new Date(elementDuration.time + timezoneOffset);
     //consoleLog('displayDuration() startTime = ' + startTime + ' time = ' + time + ' timezoneOffset = ' + timezoneOffset + ' date = ' + date + ' dateCur = ' + dateCur);
     var year = date.getFullYear();//нужно анализировать для случая Time Zone < 0 (Американское время)
     if (year == 1969)
-        var date = new Date(time + timezoneOffset + 1000 * 60 * 60);
+        var date = new Date(elementDuration.time + timezoneOffset + 1000 * 60 * 60);
     else if ((year == 1970) && (date.getHours() == 1))
-        var date = new Date(time + timezoneOffset - 1000 * 60 * 60);
+        var date = new Date(elementDuration.time + timezoneOffset - 1000 * 60 * 60);
     var hour = date.getHours();
     var minute = date.getMinutes();
     var seconds = date.getSeconds();
@@ -733,16 +830,42 @@ function isBranchExpanded(informer) {
     return informer.className.indexOf(' expanded') != -1;
 }
 
+function isBranchExpandedFast(informer) {
+    return informer.style.display == 'block';
+}
+
+function onbranchFast(informerId, branchId) {
+    onbranchelementFast(document.getElementById(informerId), branchId);
+}
+
+function onbranchelementFast(informer, branchId) {
+    consoleLog("onbranchelementFast(" + informer.id + ', ' + branchId + ")");
+    var branch = document.getElementById(branchId);
+    if(informer.style.display == 'none')
+    {
+        informer.style.display = 'block';
+        if(branch)
+            branch.innerHTML = "▼"<!-- http://htmlbook.ru/samhtml/tekst/spetssimvoly http://unicode-table.com/ru/#box-drawing -->
+        return;
+    }
+    informer.style.display = 'none';
+    if(branch)
+        branch.innerHTML = "▶"<!-- http://htmlbook.ru/samhtml/tekst/spetssimvoly http://unicode-table.com/ru/#box-drawing -->
+    return;
+};
+
 function onbranchelementBase(informer, branch, expand, maxHeight) {
     var expanded = ' expanded';
     if(informer.className.indexOf('b-toggle') == -1)
-        consoleError('informer.className: ' + informer.className);
+        consoleError('informer.id: "' + informer.id + '" informer.className: "' + informer.className + '" Please add "b-toggle" in to class name');
     if(!isBranchExpanded(informer))
     {
         if((expand != null) && (expand == false))
             return;//do not expand
         if(typeof maxHeight == 'undefined')
-            maxHeight = window.screen.height + "px";
+            maxHeight = window.screen.height;// + "px";
+        if(typeof maxHeight == 'number')
+            maxHeight = maxHeight + "px";
         informer.style.maxHeight = maxHeight;
         informer.className += expanded;
         if(branch)
