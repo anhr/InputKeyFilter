@@ -27,5 +27,6 @@
     <None Include="InputKeyFilter.js" />
     <None Include="README.md" />
     <None Include="LICENSE" />
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>

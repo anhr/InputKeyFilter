@@ -122,6 +122,7 @@
     <Media Include="beep.wav" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
     <None Include="Common.js" />
     <None Include="index.htm">
       <DeploymentContent>true</DeploymentContent>
