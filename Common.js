@@ -2,7 +2,7 @@
  * Common Javascript code. I use it in my different projects
  * Author: Andrej Hristoliubov
  * email: anhr@mail.ru
- * About me: http://anhr.ucoz.net/AboutMe/
+ * About me: https://anhr.github.io/AboutMe/
  * source: https://github.com/anhr/WebFeatures
  * Licences: GPL, The MIT License (MIT)
  * Copyright: (c) 2015 Andrej Hristoliubov
